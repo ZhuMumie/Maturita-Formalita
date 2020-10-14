@@ -4,10 +4,10 @@ import 'codemirror/theme/material.css'
 import 'codemirror/mode/xml/xml'
 import 'codemirror/mode/javascript/javascript'
 import 'codemirror/mode/css/css'
-import { Controlled as ControlledEditor } from 'react-codemirror2'
+import { Controlled } from 'react-codemirror2'
 
 
-export default function Reader(props) {
+ function  Reader(props) {
   const {
     value,
     onChange
@@ -15,13 +15,17 @@ export default function Reader(props) {
 
   
   function handleChange(editor, data, value) {
-    onChange(value);
+    onChange(value)
   }
+  
+  
 
 
-  return (
-    <div>
-      <ControlledEditor
+  return ( 
+    <div >
+    
+      <Controlled
+
         onBeforeChange={handleChange}
         value={value}
         className="code-mirror-wrapper"
@@ -30,9 +34,13 @@ export default function Reader(props) {
           lint: true,
           mode: 'javascript',
           theme: 'material',
-          lineNumbers: true
+          lineNumbers: true,
+          inputStyle: "textarea",
+          
         }}
       />
     </div>
   )
 }
+
+export default Reader;
