@@ -1,64 +1,35 @@
 import React, {useState} from 'react';
 import { Interpreter } from './components/interpreter';
 import Reader from './components/reader';
-
-
+import Login from './components/pages/login';
+import Singup from './components/pages/singup';
+import Home from './components/pages/index';
+import Console from './components/pages/console';
+import Navibar from './components/navbar';
+import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "shards-ui/dist/css/shards.min.css";
 
 
 function App() {
 
-  const [js, setJs]=useState('')
-  const [doc, setDoc]=useState()
-  
- 
-  var initFunc = function(interpreter, globalObject) {
-    var wrapper = function(text) {
-      return text;
-    };
-    interpreter.setProperty(globalObject, 'consoleLog',
-        interpreter.createNativeFunction(wrapper));
-  };
-
 
 
   
-function render(e){
-  e.preventDefault();
-  try{
-    var myInterpreter = new Interpreter(js.trim(), initFunc);
+  return (<div > <Router>
+    
+                <Navibar> </Navibar>
+              
+        <Switch>
+          <Route path="/login" exact component={() => <Login />} />
+          <Route path="/" exact component={() => <Home />} />
+          <Route path="/singup" exact component={() => <Singup />} />
+          <Route path="/console" exact component={() => <Console />} />
+        </Switch>
 
-    if(myInterpreter.run())
-    {
-      
-    }
-  
-     setDoc(myInterpreter.value);
-  
-    console.log(doc)
-  }
-  catch(error){
-      setDoc(error);
-  }
-
-}
+      </Router>
 
 
- 
-  
-  return (<div className="container">
-              <button onClick={render}>
-                run
-              </button> 
-            <Reader value={js} onChange={setJs}/>
-
-          
-           <iframe  title='output' sandbox='allow-scripts' frameBorder='0' srcDoc={doc}
-           width="100%"
-          height="100%">
-
-           </iframe>
-          
-            
           </div>
     );
 }

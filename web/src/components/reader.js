@@ -23,7 +23,7 @@ import { Controlled } from 'react-codemirror2'
 
   return ( 
     <div >
-    
+      
       <Controlled
 
         onBeforeChange={handleChange}
@@ -36,6 +36,7 @@ import { Controlled } from 'react-codemirror2'
           theme: 'material',
           lineNumbers: true,
           inputStyle: "textarea",
+  
           
         }}
       />
