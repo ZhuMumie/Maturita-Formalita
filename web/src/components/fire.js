@@ -15,4 +15,5 @@ import firebase from 'firebase';
   const fire = firebase.initializeApp(firebaseConfig);
   firebase.analytics();
 
+  
   export default fire;

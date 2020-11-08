@@ -1,11 +1,13 @@
 import React from "react";
 import { Button, Container, Row, Col, Progress  } from "shards-react";
 import LoadBar from '../loadbar';
-
+import Navibar from '../navbar';
 function Home() {
-  return ( 
+  return (    <div>
+          
       <Container style={{width:"100vv", margin:"0 !important"}}>
-        <div>
+        
+     
         
         
           <div className="home-block">
@@ -55,8 +57,9 @@ function Home() {
          
         </Col>
     </Row>
-            </div>
+           
             </Container>
+            </div>
   );
 }
 

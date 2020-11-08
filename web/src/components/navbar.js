@@ -10,9 +10,9 @@ import {
     DropdownToggle,
     DropdownMenu,
     DropdownItem,
-    Collapse
+    Collapse,
+    Button
   } from "shards-react";
-  import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom";
 
   
 export default class Navibar extends React.Component {
@@ -48,6 +48,7 @@ export default class Navibar extends React.Component {
   
     render() {
       return (
+        <div>
         <Navbar type="dark" theme="dark" expand="md" >
           <NavbarBrand href="/">JS úlohy</NavbarBrand>
           <NavbarToggler onClick={this.toggleNavbar} />
@@ -56,26 +57,21 @@ export default class Navibar extends React.Component {
             <Nav navbar>
           
               <NavItem>
-                <NavLink href="/">
+                <NavLink href="/home">
                   domů
                 </NavLink>
               </NavItem>
-              <Dropdown
-                open={this.state.dropdownOpen}
-                toggle={this.toggleDropdown}
-              >
-                <DropdownToggle nav caret>
-                  účet
-                </DropdownToggle>
-                <DropdownMenu>
-                  <DropdownItem>settings</DropdownItem>
-                  <DropdownItem><Link to="/login">log in</Link></DropdownItem>
-                  <DropdownItem><Link to="/singup">sing up</Link></DropdownItem>
-                </DropdownMenu>
-              </Dropdown>
+              <NavItem>
+                 <NavLink style={{cursor:"pointer"}} onClick={this.props.handleLogout}>
+                  Odhlásit se
+                </NavLink> 
+                
+              </NavItem>
             </Nav>
           </Collapse>
         </Navbar>
+        
+        </div>
       );
     }
   }

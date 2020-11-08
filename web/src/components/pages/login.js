@@ -1,14 +1,16 @@
 import React from "react";
 import { Form, FormInput, FormGroup, Container, Button } from "shards-react";
 
-function Login() {
+function Login(props) {
+  const {} = props
+
   return (
     <Container style={{paddingTop:"20px"}}>
     <Form>
       <h2>Login In</h2>
     <FormGroup>
-      <label htmlFor="#username">Username</label>
-      <FormInput id="#username" placeholder="Username" />
+      <label>Email</label>
+      <FormInput id="#email" placeholder="Email" type="emial"/>
     </FormGroup>
     <FormGroup>
       <label htmlFor="#password">Password</label>
