@@ -1,16 +1,100 @@
-import React from "react";
-import { Button, Container, Row, Col, Progress  } from "shards-react";
+import React, {useState, useEffect} from "react";
 import LoadBar from '../loadbar';
-import Navibar from '../navbar';
+import firebase from "firebase";
+import { BrowserRouter as Router, Route, Switch, Link, Redirect } from "react-router-dom";
+import { Container, Grid, Button} from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import {getExercises} from '../../dtb_requests/db'
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+  },
+  homeBlock: {
+    padding: theme.spacing(2),
+    textAlign: 'center',
+    backgroundColor: "rgb(223, 223, 223)",
+    height:"100%"
+  },
+  blockText:{
+    fontSize: "calc(1.5vw + 1.5vh)",
+  },  
+  headerText: {
+    fontSize: "calc(3vw + 3vh)",
+  },
+  continueBtn:{
+    backgroundColor:"rgb(250, 250, 250)",
+    padding:"calc(0.5vw + 0.5vh)",
+    paddingLeft:"calc(1vw + 1vh)",
+    paddingRight:"calc(1vw + 1vh)",
+    borderRadius:"50%"
+  },
+  homeContent:{
+    padding: "calc(0.5vw + 0.5vh)",
+  }
+
+}));
+
+
 function Home() {
-  return (    <div>
-          
-      <Container style={{width:"100vv", margin:"0 !important"}}>
+
+  const classes = useStyles();
+  const [exercises, setExercises] = useState([]);
+
+  useEffect(()=>{
+      const fetchUsers = async () => {
+       setExercises(await getExercises())
+      }
+      fetchUsers();
+  }, [])
+  
+  return (    
+ 
+          <div className={classes.root}>
+      <Container maxWidth="lg">
         
-     
+      <Grid container>
+      <Grid item xs={12} className={classes.homeBlock}>
+          <div className={classes.blockText}>
+            cvičení
+          </div>
+
+          <div className={classes.headerText}>
+            current exersice
+          </div>
+          <div>
+          <Button color="inherit" size="large" className={classes.continueBtn} >pokračovat</Button>
+          </div>
+      </Grid>
+
+      <Grid item xs={12} sm={6} className={classes.homeContent} >
+      <div className="home-kap">
+        přehled cvičení 
+      </div>
+        <div>
+          {exercises.map(exercises=>(
+            <div className="home-kapitoly">
+              <li key={exercises.name}>
+                <Link to={"console/" + exercises.name}>{exercises.name}</Link>
+                
+              </li>  
+            </div>
+          ))}
+        </div>
+      <div>
         
+      </div>
+      </Grid>
+
+      <Grid item xs={12} sm={6} className={classes.homeContent}>
+      <LoadBar value="60" className={'loadBar ' + classes.homeContent} bgcolor="#5a6169"></LoadBar> 
+      </Grid>
+
+    </Grid>
         
-          <div className="home-block">
+      
+          {/* <div className="home-block">
+           
             kapitola 2.2
             <div className="home-button">
                 <Button pill theme="secondary">pokračovat</Button>
@@ -31,22 +115,24 @@ function Home() {
           postup kurzem
           </div>
           </Col>
+          <Col>
+         
+          </Col>
         </Row>
 
 
     <Row>
         <Col sm="12" lg="6">
-       
-            <div >
-                <div className="home-kapitoly">
-                1. hello world
-                </div >
-                <div className="home-kapitoly">
-                2.1 proměnné
-                </div>
-                <div className="home-kapitoly">
-                2.2 proměnné - operátory
-                </div>
+        <div >
+        
+        {exercises.map(exercises=>(
+            <div className="home-kapitoly">
+            <li key={exercises.name}>
+            <Link to={"console/" + exercises.name}>{exercises.name}</Link>
+                
+            </li>  
+            </div>
+          ))}
             </div>
 
             </Col>
@@ -56,10 +142,10 @@ function Home() {
             <LoadBar value="60" className='loadBar' bgcolor="#5a6169"></LoadBar> 
          
         </Col>
-    </Row>
+    </Row> */}
            
-            </Container>
-            </div>
+  </Container>
+  </div>
   );
 }
 

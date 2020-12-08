@@ -102,8 +102,8 @@ padding-top: 5vh;
 
 .console{
   height: 100%;
-  
-  padding-top: 1vh;
+  position: relative;
+
 }
 
 .runBtn{
@@ -113,10 +113,18 @@ padding-top: 5vh;
     
 
 }
-
+.conBtn{
+  padding:20px !important;
+  padding-left: 35px !important;
+  padding-right: 35px !important;
+  float: right !important;
+  
+}
 .zadaniText{
   padding-top: 10px;
 }
+
+
 
 .outputConsole{
   height: 65%;
@@ -125,21 +133,33 @@ padding-top: 5vh;
   padding-top: 10px;
   color:white;
   font-size: 1.2em;
+
  
 }
 
-.CodeMirror{
-  height: 86vh !important;
-  
+
+.topText{
+  padding: 10px;
+  font-weight: bold;
+  text-align: center;
+  font-size: 2em;
+}
+.sex{
+  overflow: hidden; 
+  position: relative;
+  height: 100vh;
 }
 
 .CodeMirror-sizer{
-  height: 100% !important;
+  height: 200px !important;
+  border: none !important;
 }
-/* .CodeMirror-scroll{
-  height: 500px !important;
-} */
 
-.react-codemirror2.code-mirror-wrapper{
-  height: 100% !important;
+.underline:hover{
+  text-decoration: none;
+
+}
+
+.MuiPaper-root:hover{
+  color:black !important;
 }

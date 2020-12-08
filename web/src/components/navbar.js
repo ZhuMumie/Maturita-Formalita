@@ -1,4 +1,5 @@
-  import React from 'react';
+import React from 'react';
+import fire from './fire';
 import {
     Navbar,
     NavbarToggler,
@@ -6,15 +7,22 @@ import {
     Nav,
     NavItem,
     NavLink,
+    Collapse, 
     Dropdown,
     DropdownToggle,
     DropdownMenu,
     DropdownItem,
-    Collapse,
-    Button
-  } from "shards-react";
+} from "shards-react";
+
+
 
   
+
+  const handleLogout = () =>{
+   
+    fire.auth().signOut();
+  }
+
 export default class Navibar extends React.Component {
     constructor(props) {
       super(props);
@@ -57,12 +65,25 @@ export default class Navibar extends React.Component {
             <Nav navbar>
           
               <NavItem>
-                <NavLink href="/home">
+                <NavLink href="/">
                   domů
                 </NavLink>
               </NavItem>
+              <Dropdown
+              open={this.state.dropdownOpen}
+              toggle={this.toggleDropdown}
+              >
+              <DropdownToggle nav caret>
+                akce????  
+              </DropdownToggle>
+              <DropdownMenu>
+                <DropdownItem>Action</DropdownItem>
+                <DropdownItem>Another action</DropdownItem>
+                <DropdownItem>Something else here</DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
               <NavItem>
-                 <NavLink style={{cursor:"pointer"}} onClick={this.props.handleLogout}>
+                 <NavLink style={{cursor:"pointer"}} onClick={handleLogout}>
                   Odhlásit se
                 </NavLink> 
                 

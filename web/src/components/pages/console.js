@@ -1,16 +1,38 @@
 
-import React, {useState} from 'react';
+import React, {useState, useEffect, useLayoutEffect} from 'react';
 import Reader from '../reader';
 import { Interpreter } from '../interpreter';
 import { Button, Container, Row, Col, Progress  } from "shards-react";
+import { BrowserRouter as Router, Route, Switch, Link, Redirect, useParams } from "react-router-dom";
+import firebase from "firebase";
 
 function Console() {
 
+    //consolovej text, sem přijde před připravenej kód, taky odtud půjde kód co dělá uživatel na testování
     
-  const [js, setJs]=useState('//console')
+  const [js, setJs]=useState('')
   const [doc, setDoc]=useState()
-  
 
+  const [description, setDescription] = useState("")
+  const { name } = useParams();
+  const [exeName, setExeName] = useState("");
+  const [testCode, setTestCode] = useState("");
+
+  useLayoutEffect(()=>{
+    const fetchData = async () => {
+      const db = firebase.firestore()
+      db.collection("exercises").where("name", "==", name).get().then(function(querySnapshot){
+        querySnapshot.forEach(function(doc){
+          setJs(doc.data().code)
+          setDescription(doc.data().description)
+          setExeName(doc.data().name)
+          setTestCode(doc.data().test_code)
+        })
+      } );
+      
+    }
+    fetchData();
+}, [])
  
   var initFunc = function(interpreter, globalObject) {
     var console = interpreter.nativeToPseudo({});
@@ -50,12 +72,13 @@ function render(e){
 
   
             <div className="console">
+           
             <Row style={{margin:"0px", height:"80vh"}}>
             
               <Col sm="12" lg="6" >
-            <Reader value={js} onChange={setJs} />
+            <Reader value={js} onChange={setJs} height="500px" />
 
-           
+
 
            
             </Col>
@@ -63,15 +86,14 @@ function render(e){
             <Col sm="12" lg="6" >
             
             <div className="outputConsole">
-              {'kapitola jmeno'}<br></br>
+              {exeName}<br></br>
              {'>'} {doc}
             </div>
             <Button onClick={render} pill theme="success" className="runBtn">
                 run
             </Button> 
             <div className="zadaniText">
-                Lorem Ipsum je demonstrativní výplňový text používaný v tiskařském a knihařském průmyslu. Lorem Ipsum je považováno za standard v této oblasti už od začátku 16. století, kdy dnes neznámý tiskař vzal kusy textu a na jejich základě vytvořil speciální vzorovou knihu. Jeho odkaz nevydržel pouze pět století, on přežil i nástup elektronické sazby v podstatě beze změny. Nejvíce popularizováno bylo Lorem Ipsum v šedesátých letech 20. století, kdy byly vydávány speciální vzorníky s jeho pasážemi a později pak díky počítačovým DTP programům jako Aldus PageMaker.
-
+              {description}
             </div>
            {/* <iframe  title='output' frameBorder='0' srcDoc={doc}
             height="100%"
