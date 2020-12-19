@@ -1,5 +1,7 @@
 import React from 'react';
 import fire from './fire';
+import {useHistory } from "react-router-dom";
+
 import {
     Navbar,
     NavbarToggler,
@@ -16,10 +18,11 @@ import {
 
 
 
-  
+
 
   const handleLogout = () =>{
-   
+    
+    window.location.reload();
     fire.auth().signOut();
   }
 
@@ -69,24 +72,19 @@ export default class Navibar extends React.Component {
                   domů
                 </NavLink>
               </NavItem>
-              <Dropdown
-              open={this.state.dropdownOpen}
-              toggle={this.toggleDropdown}
-              >
-              <DropdownToggle nav caret>
-                akce????  
-              </DropdownToggle>
-              <DropdownMenu>
-                <DropdownItem>Action</DropdownItem>
-                <DropdownItem>Another action</DropdownItem>
-                <DropdownItem>Something else here</DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
+
               <NavItem>
+                <NavLink href="/exercises">
+                  úlohy
+                </NavLink>
+              </NavItem>
+              
+            </Nav>
+            <Nav navbar className="ml-auto">
+            <NavItem>
                  <NavLink style={{cursor:"pointer"}} onClick={handleLogout}>
                   Odhlásit se
                 </NavLink> 
-                
               </NavItem>
             </Nav>
           </Collapse>

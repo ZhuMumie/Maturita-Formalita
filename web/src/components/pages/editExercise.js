@@ -1,4 +1,4 @@
-import React, {useState } from 'react';
+import React, {useState, useLayoutEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
@@ -11,7 +11,7 @@ import { Interpreter } from '../interpreter';
 import  Reader from '../reader';
 import firebase from "firebase"
 import CloseIcon from '@material-ui/icons/Close';
-import { useHistory } from "react-router-dom";
+import {useHistory, useParams } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,15 +36,16 @@ function getSteps() {
 }
 
 
-export default function AddExercise() {
-
-  let history = useHistory();     
-
+export default function EditExercise() {
+  const [open, setOpen] = React.useState(false);
+     
+  const { name } = useParams();
+  const [checkbox, setcheckbox] = useState();
   const [doc, setDoc]=useState()
   const [js, setJs]=useState("")
-  const [name, setName] = useState("");
+  const [exeName, setExeName] = useState("");
   const [description, setDescription] = useState("");
-  const [funTest, setFunTest] = useState("myFunction(2,2)");
+  const [funTest, setFunTest] = useState("");
   //funkce
   const [testResult, setTestResult]= useState("")
   //vysledek v konzoli
@@ -68,18 +69,59 @@ export default function AddExercise() {
     setActiveStep(0);
   };
 
+  
+  
+  const [subId, setSubId] = useState("")
+  const [docId, setDocId] = useState("")
+
+  useLayoutEffect(()=>{
+    const fetchData = async () => {
+      const db = firebase.firestore()
+      var subCol = "";
+      var id = "";
+      var isFunc = true;
+     await db.collection("exercises").where("name", "==", name).get().then(function(querySnapshot){
+        querySnapshot.forEach(function(doc){
+          id= doc.id
+          setDocId(doc.id)
+          setJs(doc.data().code)
+          setDescription(doc.data().description)
+          setExeName(doc.data().name)
+          setcheckbox(doc.data().isFuncTest) 
+          isFunc = doc.data().isFuncTest;
+        
+         
+        })
+      } )
+
+      if(isFunc){
+        subCol = "test_func";
+       }
+       else subCol = "test_log";
 
 
+      var docRef = db.collection('exercises').doc(id).collection(subCol);
+      await docRef.get().then((querySnapshot)=>{
+        const tempDoc = []
+        querySnapshot.forEach((doc)=>{
+          tempDoc.push({id: doc.id, ...doc.data()})
+          console.log(tempDoc)
+          setSubId(doc.id)
+        })
+      }).catch(function(error){console.log(error)})
+      
 
-  const [checkbox, setcheckbox] = useState(false);
+    }
+    fetchData();
+    
+}, [])
 
  
-  function handleCheckBox(e, fruit){
-    if(checkbox) setcheckbox(false)
-    else
-    setcheckbox(true); 
 
-  }
+  console.log(subId)
+  console.log(docId)
+
+
 
   var initFunc = function(interpreter, globalObject) {
     var console = interpreter.nativeToPseudo({});
@@ -111,11 +153,6 @@ function renderSolution(e){
   }
  
 }  
-  function handleBtnChange(e){
-    setFunTest(e)
-    setfunResult(js + funTest)
-    console.log(funResult)
-  }
 
 
  function renderTest(e){
@@ -141,16 +178,15 @@ function renderSolution(e){
  
 }
 
+let history = useHistory()
 
-
-function createRecord(){
+function editRecord(){
   
   const db = firebase.firestore()
-  db.collection("exercises").add({
-    name:name,
+  db.collection("exercises").doc(docId).update({
+    name:exeName,
     code: js,
-    description:description,
-    isFuncTest:checkbox
+    description:description
   }).then(function(docRef){
 
   var subColName = "";
@@ -158,21 +194,21 @@ function createRecord(){
    subColName = "test_func";
   }
   else subColName = "test_log";
-  
-   const subcol = db.collection("exercises").doc(docRef.id).collection(subColName);
-    subcol.add({
-      test: funTest
-    }) 
 
-    history.push("/exercises");
+   const subcol = db.collection("exercises").doc(docId).collection(subColName).doc(subId);
+    subcol.update({
+      test: funTest   
+    }) 
+    
+    
+     history.push("/exercises");
   }).catch(function(error){
     console.log(error)
     setOpen(true)
-    
   });
 }
 
-const [open, setOpen] = React.useState(false);
+
 
 const handleAlert = () =>{
   setOpen(true)
@@ -205,9 +241,9 @@ const handleCloseAlert = (event, reason) => {
             '0':
             <div> 
             <Form>
-              <FormGroup onChange={(e)=> setName(e.target.value)}>
+              <FormGroup onChange={(e)=> setExeName(e.target.value)}>
               <label htmlFor="ExerciseName">jmeno cviceni</label>
-              <FormInput />
+              <FormInput value={name}></FormInput>
               </FormGroup>
               <FormGroup onChange={(e)=> setDescription(e.target.value)}>
               <label htmlFor="description">popis cviceni</label>
@@ -215,7 +251,7 @@ const handleCloseAlert = (event, reason) => {
               </FormGroup>
               <FormGroup>
               <label></label>
-              <FormCheckbox checked={checkbox} onChange={(e)=> handleCheckBox(e, "function")}>vysledek cviceni je funkce</FormCheckbox>
+              
               </FormGroup>
             </Form>
             <Button
@@ -329,8 +365,8 @@ const handleCloseAlert = (event, reason) => {
                               Zpět
                           </Button>
 
-                          <Button variant="contained" color="primary"  size="large" onClick={createRecord}>
-                            Vytvořit zadání
+                          <Button variant="contained" color="primary"  size="large" onClick={editRecord}>
+                            upravit zadání
                           </Button>
                         </Grid>
 
@@ -345,7 +381,7 @@ const handleCloseAlert = (event, reason) => {
                     open={open}
                     autoHideDuration={6000}
                     onClose={handleCloseAlert}
-                    message="došlo k cybě při vytváření"
+                    message="doslo k chybe pri vytváření"
                     action={
                       <React.Fragment>
                          <CloseIcon fontSize="small" />
@@ -382,7 +418,7 @@ const handleCloseAlert = (event, reason) => {
                       <Form>
                        <FormGroup>
                         <label htmlFor="text">očekávaný výstup</label>
-                        <FormInput id="logResult" placeholder="výstup" onChange={(e)=> setFunTest(e.target.value)} />
+                        <FormInput id="logResult" placeholder="výstup" onChange={(e)=> setFunTest(e.target.value)} value={funTest} />
                       </FormGroup>
                     </Form>
                     zadejte očekávaný výstup konzole
@@ -401,7 +437,7 @@ const handleCloseAlert = (event, reason) => {
                               Zpět
                           </Button>
 
-                          <Button variant="contained" color="primary"  size="large" onClick={createRecord}>
+                          <Button variant="contained" color="primary"  size="large" onClick={editRecord}>
                             Vytvořit zadání
                           </Button>
                         </Grid>
@@ -409,7 +445,22 @@ const handleCloseAlert = (event, reason) => {
                       </Grid>
                     </Grid>
                     
-
+                    <Snackbar
+                     anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'right',
+                    }}
+                    open={open}
+                    autoHideDuration={6000}
+                    onClose={handleCloseAlert}
+                    message="vytvoreno"
+                    action={
+                      <React.Fragment>
+                         <CloseIcon fontSize="small" />
+                      </React.Fragment>
+                    }
+                    />
+                      
                    
                   </Grid>
 

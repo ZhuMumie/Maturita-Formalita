@@ -4,7 +4,7 @@ import firebase from 'firebase';
 import {Redirect, Route} from 'react-router-dom';
 import Navibar from '../navbar';
 import {AuthLocalContext} from '../../moduly/authContext';
-
+import {useHistory } from "react-router-dom";
 
 function Singup(props) {
 
@@ -13,7 +13,8 @@ function Singup(props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
- 
+  const history = useHistory()
+
   const {currentUser,
   singup,
   login,
@@ -26,7 +27,19 @@ function Singup(props) {
 
   function handleSingup(){
     clearError();
-    singup(email, password).catch(err=>{
+    const db = firebase.firestore()
+    singup(email, password).then((user)=>{
+     var user = firebase.auth().currentUser;
+     if(user != null)
+     {
+       db.collection("users").doc(user.uid).set({
+         isAdmin:false
+       })
+     }
+        history.push("/")
+      
+    }   
+    ).catch(err=>{
       switch(err.code){
           case "auth/email-already-in-use":
           case "auth/invalid-email":
@@ -42,7 +55,7 @@ function Singup(props) {
   function handleLogin(){
     clearError();
     login(email, password).then((user)=>{
-    
+      history.push("/")
     }).catch(err=>{
       switch(err.code){
         case "auth/invalid-email":
@@ -56,6 +69,9 @@ function Singup(props) {
 
     }
 
+    const handleMicro= ()=>{
+      microSingUp()
+    }
 
   
   return currentUser ?( 
@@ -97,7 +113,7 @@ function Singup(props) {
         
       </>
     )}
-    <p><span style={{cursor:"pointer"}} onClick={()=>microSingUp()}>log in with Microsoft</span></p> 
+    <p><span style={{cursor:"pointer"}} onClick={()=>handleMicro()}>log in with Microsoft</span></p> 
     {hasAccount ?( 
       <>
        <p>have an Account? <span style={{cursor:"pointer"}} onClick={()=>setHasAccount(!hasAccount)}>Log in</span> </p>

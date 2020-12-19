@@ -1,10 +1,9 @@
 import React, {useState, useEffect} from "react";
 import LoadBar from '../loadbar';
-import firebase from "firebase";
-import { BrowserRouter as Router, Route, Switch, Link, Redirect } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Container, Grid, Button} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import {getExercises} from '../../dtb_requests/db'
+import {getExercises, getAllExe} from '../../dtb_requests/db'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,12 +26,22 @@ const useStyles = makeStyles((theme) => ({
     padding:"calc(0.5vw + 0.5vh)",
     paddingLeft:"calc(1vw + 1vh)",
     paddingRight:"calc(1vw + 1vh)",
-    borderRadius:"50%"
+    borderRadius:"5%"
   },
   homeContent:{
     padding: "calc(0.5vw + 0.5vh)",
+  },
+  aHref:{
+    '&:hover':{
+      textDecoration:"none",
+      
+    },
+    color:"#43494f",
+  },
+  link :{
+    listStyleType:"none",
+  
   }
-
 }));
 
 
@@ -74,8 +83,8 @@ function Home() {
         <div>
           {exercises.map(exercises=>(
             <div className="home-kapitoly">
-              <li key={exercises.name}>
-                <Link to={"console/" + exercises.name}>{exercises.name}</Link>
+              <li key={exercises.name} className={classes.link}>
+                <Link to={"console/" + exercises.name}  className={classes.aHref}> {exercises.name} </Link>
                 
               </li>  
             </div>

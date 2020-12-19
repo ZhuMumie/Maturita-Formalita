@@ -1,7 +1,7 @@
 import React, {useState,  useContext, useEffect} from 'react';
 import fire from '../components/fire';
 import firebase from 'firebase';
-
+import {useHistory } from "react-router-dom";
 
 
 export const AuthLocalContext = React.createContext(
@@ -11,14 +11,16 @@ export const AuthLocalContext = React.createContext(
 
 
 const AuthLocalProvider=({children})=>{
-
+    const db = firebase.firestore()
+    let history = useHistory();
     const [currentUser, setCurrentUser] = useState();
+    const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
     
     function singup(email, password){
 
         return fire.auth().createUserWithEmailAndPassword(email, password);
-      
+
     }
      
     const login=(email, password)=>{
@@ -27,12 +29,30 @@ const AuthLocalProvider=({children})=>{
 
     function logout(){
         fire.auth().signOut();
+        history.push("/");
     }
 
     
     useEffect(() => {
         const unsubscribe = fire.auth().onAuthStateChanged(user => {
           if(user) setCurrentUser(user);
+
+          var isOnline = firebase.auth().currentUser;
+
+          if(isOnline){ 
+          const getAdmin = async () =>{
+            const data = await firebase.firestore().collection("users").doc(user.uid);
+              data.get().then(function(doc){
+                if (doc.exists) {
+                  setIsAdmin(doc.data().isAdmin)
+              } else {
+                  console.log("No such document!");
+              }
+              })
+          }
+          getAdmin()
+        }
+         
           setLoading(false);
         })
         
@@ -53,18 +73,18 @@ const AuthLocalProvider=({children})=>{
           
             });
         
-            fire.auth().signInWithPopup(provider)
-            .catch(function(error) {
-              // Handle error.
-            });
-          }
+          fire.auth().signInWithPopup(provider).then(function (result){
+            console.log(result.credential.idToken)
+          })
+    }
           
           const value = {
             currentUser,
             singup,
             login,
             logout,
-            microSingUp
+            microSingUp,
+            isAdmin
           }
 
     return(
