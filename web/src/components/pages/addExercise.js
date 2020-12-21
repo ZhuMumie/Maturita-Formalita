@@ -52,7 +52,7 @@ export default function AddExercise() {
   }, [])
 
   console.log(exercises)
- var numOfExe = Object.keys(exercises).length
+
   let history = useHistory();     
 
   const [doc, setDoc]=useState()
