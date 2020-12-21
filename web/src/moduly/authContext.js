@@ -74,7 +74,7 @@ const AuthLocalProvider=({children})=>{
             });
         
           fire.auth().signInWithPopup(provider).then(function (result){
-            console.log(result.credential.idToken)
+            
           })
     }
           

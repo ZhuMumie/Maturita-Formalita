@@ -5,6 +5,7 @@ import {Redirect, Route} from 'react-router-dom';
 import Navibar from '../navbar';
 import {AuthLocalContext} from '../../moduly/authContext';
 import {useHistory } from "react-router-dom";
+import {getExistUser} from '../../dtb_requests/db'
 
 function Singup(props) {
 
@@ -33,7 +34,8 @@ function Singup(props) {
      if(user != null)
      {
        db.collection("users").doc(user.uid).set({
-         isAdmin:false
+         isAdmin:false,
+         current_exercise_id:" "
        })
      }
         history.push("/")
@@ -42,7 +44,7 @@ function Singup(props) {
     ).catch(err=>{
       switch(err.code){
           case "auth/email-already-in-use":
-          case "auth/invalid-email":
+          case "auth/invalid-email":  
           case"auth/weak-password":
           setError(err.message);
           break;
@@ -68,9 +70,29 @@ function Singup(props) {
     });
 
     }
+  
 
-    const handleMicro= ()=>{
+    const handleMicro= async ()=>{
       microSingUp()
+      const db = firebase.firestore()
+     await firebase.auth().onAuthStateChanged(async function (user){
+        if(user){
+         console.log(user.uid)
+         if(await getExistUser(user.uid))
+         {
+          history.push("/")
+         }
+         else{
+          db.collection("users").doc(user.uid).set({
+            isAdmin:false,
+            current_exercise_id:" "
+          })
+          history.push("/")
+         }
+        }
+        else console.log("co se d2je pomoc")
+      })
+      
     }
 
   

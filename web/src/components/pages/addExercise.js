@@ -1,4 +1,4 @@
-import React, {useState } from 'react';
+import React, {useState, useEffect, useLayoutEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
@@ -12,6 +12,7 @@ import  Reader from '../reader';
 import firebase from "firebase"
 import CloseIcon from '@material-ui/icons/Close';
 import { useHistory } from "react-router-dom";
+import {getExercise, getExercises} from '../../dtb_requests/db';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -38,6 +39,20 @@ function getSteps() {
 
 export default function AddExercise() {
 
+  const [exercises, setExercise] = useState()
+  
+  const [isLoading, setIsLoading] = useState(false);
+  
+  useLayoutEffect(()=>{
+   const getData = async () =>{
+      setExercise(await getExercises());
+
+   }
+    getData();
+  }, [])
+
+  console.log(exercises)
+ var numOfExe = Object.keys(exercises).length
   let history = useHistory();     
 
   const [doc, setDoc]=useState()
@@ -58,6 +73,7 @@ export default function AddExercise() {
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    
   };
 
   const handleBack = () => {
@@ -72,13 +88,18 @@ export default function AddExercise() {
 
 
   const [checkbox, setcheckbox] = useState(false);
-
+  const [required, setRequired] = useState(false)
  
   function handleCheckBox(e, fruit){
     if(checkbox) setcheckbox(false)
     else
     setcheckbox(true); 
 
+  }
+
+  const handleReq = () =>{
+    if(required) setRequired(false)
+    else setRequired(true)
   }
 
   var initFunc = function(interpreter, globalObject) {
@@ -150,7 +171,9 @@ function createRecord(){
     name:name,
     code: js,
     description:description,
-    isFuncTest:checkbox
+    isFuncTest:checkbox,
+    isRequired:required,
+    exeOrder:1
   }).then(function(docRef){
 
   var subColName = "";
@@ -216,6 +239,10 @@ const handleCloseAlert = (event, reason) => {
               <FormGroup>
               <label></label>
               <FormCheckbox checked={checkbox} onChange={(e)=> handleCheckBox(e, "function")}>vysledek cviceni je funkce</FormCheckbox>
+              </FormGroup>
+              <FormGroup>
+              <label></label>
+              <FormCheckbox checked={required} onChange={(e)=> handleReq(e, "function")}>cvičení zapadá do kurzu</FormCheckbox>
               </FormGroup>
             </Form>
             <Button

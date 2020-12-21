@@ -21,7 +21,15 @@ export const getExercise = async () => {
     })
 }
 
-
+export const getExistUser = async (id) =>{
+    const data = await db.collection("users").where(firebase.firestore.FieldPath.documentId(), '==', id.toString()).get();
+    if(data.docs[0])
+    { 
+        return true;
+    }
+    else return false
+   
+}
   
 export const getAllExe = async () =>{
     
