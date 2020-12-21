@@ -12,7 +12,7 @@ import  Reader from '../reader';
 import firebase from "firebase"
 import CloseIcon from '@material-ui/icons/Close';
 import { useHistory } from "react-router-dom";
-import {getExercise, getExercises} from '../../dtb_requests/db';
+import {getExercise, getExercises, getExerByName} from '../../dtb_requests/db';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -66,6 +66,7 @@ export default function AddExercise() {
   const [funResult, setfunResult] =useState("")
   const [logResult, setLogResult] =useState("")
   const [parse, setParse]= useState(false)
+  const [message, setMessage] = useState("")
 
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
@@ -164,35 +165,44 @@ function renderSolution(e){
 
 
 
-function createRecord(){
-  
-  const db = firebase.firestore()
-  db.collection("exercises").add({
-    name:name,
-    code: js,
-    description:description,
-    isFuncTest:checkbox,
-    isRequired:required,
-    exeOrder:1
-  }).then(function(docRef){
-
-  var subColName = "";
-  if(checkbox){
-   subColName = "test_func";
-  }
-  else subColName = "test_log";
-  
-   const subcol = db.collection("exercises").doc(docRef.id).collection(subColName);
-    subcol.add({
-      test: funTest
-    }) 
-
-    history.push("/exercises");
-  }).catch(function(error){
-    console.log(error)
+async function createRecord(){
+  if(await getExerByName(name))
+  {
+    setMessage("jmeno funkce musi byt unikatni")
     setOpen(true)
+  }
+  else{
+    const db = firebase.firestore()
+    db.collection("exercises").add({
+      name:name,
+      code: js,
+      description:description,
+      isFuncTest:checkbox,
+      isRequired:required,
+      exeOrder:1
+    }).then(function(docRef){
+  
+    var subColName = "";
+    if(checkbox){
+     subColName = "test_func";
+    }
+    else subColName = "test_log";
     
-  });
+     const subcol = db.collection("exercises").doc(docRef.id).collection(subColName);
+      subcol.add({
+        test: funTest
+      }) 
+  
+      history.push("/exercises");
+    }).catch(function(error){
+      console.log(error)
+      setMessage("doslo k chybe pri vytvareni")
+      setOpen(true)
+      
+    });
+
+  }
+  
 }
 
 const [open, setOpen] = React.useState(false);
@@ -203,7 +213,7 @@ const handleAlert = () =>{
 
 const handleCloseAlert = (event, reason) => {
   if (reason === 'clickaway') {
-    return;
+    setOpen(false);
   }
 
   setOpen(false);
@@ -372,10 +382,10 @@ const handleCloseAlert = (event, reason) => {
                     open={open}
                     autoHideDuration={6000}
                     onClose={handleCloseAlert}
-                    message="došlo k cybě při vytváření"
+                    message={message}
                     action={
                       <React.Fragment>
-                         <CloseIcon fontSize="small" />
+                         <CloseIcon fontSize="small" onClick={handleCloseAlert} />
                       </React.Fragment>
                     }
                     />
@@ -435,7 +445,22 @@ const handleCloseAlert = (event, reason) => {
 
                       </Grid>
                     </Grid>
-                    
+                       
+                    <Snackbar
+                     anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'right',
+                    }}
+                    open={open}
+                    autoHideDuration={6000}
+                    onClose={handleCloseAlert}
+                    message={message}
+                    action={
+                      <React.Fragment>
+                         <CloseIcon fontSize="small"   onClick={handleCloseAlert}/>
+                      </React.Fragment>
+                    }
+                    />
 
                    
                   </Grid>

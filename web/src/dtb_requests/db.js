@@ -30,6 +30,15 @@ export const getExistUser = async (id) =>{
     else return false
    
 }
+
+export const getExerByName = async (name) =>{
+    const data = await db.collection("exercises").where("name", "==", name).get();
+    if(data.docs[0])
+    { 
+        return true;
+    }
+    else return false
+}
   
 export const getAllExe = async () =>{
     
