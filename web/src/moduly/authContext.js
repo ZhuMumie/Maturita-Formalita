@@ -1,4 +1,4 @@
-import React, {useState,  useContext, useEffect} from 'react';
+import React, {useState,  useContext, useEffect, useLayoutEffect} from 'react';
 import fire from '../components/fire';
 import firebase from 'firebase';
 import {useHistory } from "react-router-dom";
@@ -33,7 +33,7 @@ const AuthLocalProvider=({children})=>{
     }
 
     
-    useEffect(() => {
+    useLayoutEffect(() => {
         const unsubscribe = fire.auth().onAuthStateChanged(user => {
           if(user) setCurrentUser(user);
 
@@ -56,7 +56,7 @@ const AuthLocalProvider=({children})=>{
           setLoading(false);
         })
         
-      
+        
         return unsubscribe
       }, [])
 

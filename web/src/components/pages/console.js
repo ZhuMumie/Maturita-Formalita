@@ -7,6 +7,8 @@ import {useParams } from "react-router-dom";
 import firebase from "firebase";
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
+import { Container, Snackbar } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -35,31 +37,63 @@ function Console() {
     const classes = useStyles();
   const [js, setJs]=useState('')
   const [doc, setDoc]=useState()
+  const [ans, setAns] = useState('')
 
   const [description, setDescription] = useState("")
   const { name } = useParams();
   const [exeName, setExeName] = useState("");
   const [testCode, setTestCode] = useState("");
-  const [exercise, setExercise] = useState([])
 
+  const [exercise, setExercise] = useState([])
+  const [isFunc, setIsFunc] = useState()
+
+
+  const db = firebase.firestore()
+
+  
 
   useLayoutEffect(()=>{
+    var isFunc;
+
     const fetchData = async () => {
-      const db = firebase.firestore()
-      db.collection("exercises").where("name", "==", name).get().then(function(querySnapshot){
+      
+     await db.collection("exercises").where("name", "==", name).get().then(function(querySnapshot){
         querySnapshot.forEach(function(doc){
           
-          setJs(doc.data().code)
+          setAns(doc.data().code)
           setDescription(doc.data().description)
           setExeName(doc.data().name)
-          setTestCode(doc.data().test_code)
-          console.log(doc.data().uid)
+          setIsFunc(doc.data().isFuncTest)
+          isFunc = doc.data().isFuncTest
+          
+          
+        const subCol = db.collection("exercises").doc(doc.id).collection(isFunc ? ("test_func"):("test_log"));
+
+        subCol.get().then(function(subDoc){
+          if (subDoc.docs[0].exists) {
+            setTestCode(subDoc.docs[0].data().test)
+        } else {
+            console.log("naser si");
+        }
+    
+        })
         })
       } );
       
     }
+
     fetchData();
 }, [])
+
+const [open, setOpen] = useState(false)
+
+const handleCloseAlert = (event, reason) => {
+  if (reason === 'clickaway') {
+    setOpen(false);
+  }
+
+  setOpen(false);
+};
  
 // useLayoutEffect(()=>{
 //       const fetchExercise = async () =>{
@@ -88,9 +122,9 @@ function render(e){
       
     if(myInterpreter.run())
     {
-      
+       
     }
-  
+    
      setDoc(myInterpreter.value);
   
    
@@ -101,13 +135,93 @@ function render(e){
   
 }
 
+
 const test =(e)=>{
   e.preventDefault();
   
 
 }
 
+  const [testField, setTestField] = useState();
 
+
+
+  
+ 
+  const checkCode = () =>{
+      setDoc(" ")
+    if(isFunc)
+    { 
+
+    var field = testCode.split(/\n/).filter((el) => el !== '')
+    
+    try{   
+      var test;
+      var i=0;
+      for(test of field)
+      {
+        var finalCode = new Interpreter(ans.trim() + test, initFunc);
+        finalCode.run();
+      
+  
+        var regex = /function (.+)\(+/mg;
+        var funName = regex.exec(js.trim())
+        console.log(funName)
+        var userFunTest = test.replace(/([a-zA-Z0-9_-]+)/, funName[1])
+        console.log(js.trim() + userFunTest)
+        var userCode = new Interpreter(js.trim() + "\n " + userFunTest, initFunc);
+        userCode.run();
+
+  
+        
+        if(finalCode.value !== userCode.value)
+        {
+          setDoc("kód selhal na testu: " + userFunTest) 
+          break
+        }
+        
+        else{
+          i++
+          if(field.length==i)
+          {
+            setOpen(true)
+          }
+        }
+
+
+      }
+   }
+   catch(error){
+
+    setDoc(String(error));
+   }
+   }
+   else{
+    try{
+      var userCode = new Interpreter(js.trim(), initFunc);
+      userCode.run();
+
+
+      if(userCode.value==testCode)
+      {
+        setOpen(true)
+      }
+      
+      else{
+        
+       setDoc("takhle ne")
+      }
+
+    }
+    catch(error){
+
+    setDoc(String(error));
+   }
+   }
+  }
+
+
+ 
 
   return (
 
@@ -133,6 +247,9 @@ const test =(e)=>{
             <Button onClick={render}  className={classes.runBtn}>
                 run
             </Button> 
+            <Button onClick={checkCode}  className={classes.runBtn}>
+                Odevzdat
+            </Button> 
             <div className="zadaniText">
               {description}
             </div>
@@ -146,7 +263,21 @@ const test =(e)=>{
            </Col>
            </Row>
 
-          
+           <Snackbar
+                anchorOrigin={{
+                   vertical: 'bottom',
+                 horizontal: 'right',
+                }}
+                open={open}
+                autoHideDuration={6000}
+                onClose={handleCloseAlert}
+                message="cvičení úspěšne splněno"
+                action={
+                <React.Fragment>
+                   <CloseIcon fontSize="small" onClick={handleCloseAlert} />
+                </React.Fragment>
+               }
+            />
 
        </div>
     
