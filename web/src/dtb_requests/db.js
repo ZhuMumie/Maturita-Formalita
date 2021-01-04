@@ -1,6 +1,6 @@
 import React, {useState, useLayoutEffect } from 'react';
+import fire from "firebase"
 import firebase from "firebase"
-
 const db = firebase.firestore()
 
 
@@ -51,3 +51,10 @@ export const getAllExe = async () =>{
       });
 }
 
+
+export const getUserID = async () =>{
+   await fire.auth().onAuthStateChanged(user =>{
+        if(user) return user.uid
+        else return null
+      })
+}

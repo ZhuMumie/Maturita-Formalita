@@ -9,6 +9,10 @@ import AddIcon from '@material-ui/icons/Add';
 import firebase from "firebase";
 import Button from '@material-ui/core/Button';
 import {AuthLocalContext} from '../../moduly/authContext';
+import fire from 'firebase'
+import {getUserID} from '../../dtb_requests/db'
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -20,8 +24,18 @@ const useStyles = makeStyles((theme) => ({
     color: "theme.palette.text.secondary",
     backgroundColor:"rgb(247, 247, 247)",
     fontSize:"1.5em",
+   
 
   },
+  paperCompleted:{
+    padding: theme.spacing(2),
+    textAlign: 'left',
+    color: "rgb(247, 247, 247)",
+    backgroundColor:"rgb(240, 240, 240)", 
+    fontSize:"1.5em",
+   
+  },
+
   header:{
     textAlign: 'center',
     fontSize:"4rem",
@@ -36,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
   },
   homeKapitoly:{
     paddingTop:"15px",
-    
+   
 
   },
   btn:{
@@ -52,29 +66,51 @@ const useStyles = makeStyles((theme) => ({
 function Exercises(){
     const classes = useStyles();
     const [exercises, setExercises] = useState([])
+    const [user, setUser] = useState();
+    const [isDone, setIsDone] = useState([]);
 
     const {isAdmin} = React.useContext(AuthLocalContext)
     
-
+    
+  const {currentUser} = React.useContext(AuthLocalContext)
+  var curUser = firebase.auth().currentUser;
+ 
     const fetchData = async () =>{
       const data = await firebase.firestore().collection("exercises");
+      const progress = await firebase.firestore().collection("progression");
+   
       data.get().then((querySnapshot)=>{
           const tempDoc = querySnapshot.docs.map((doc) => {
               return { id: doc.id, ...doc.data() }
             })
-           
-            setExercises(tempDoc)
+            
+          
+        setExercises(tempDoc)
+     
+        progress.where("user_id", "==", curUser.uid).get().then(function(querySnapshot){
+         const progTemp = querySnapshot.docs.map((progDoc) =>{
+          return progDoc.data().exercise_id 
+         })
+
+         setIsDone(progTemp)
+        })
+          
       })
+     
+
+
     }
     useEffect(()=>{
         fetchData()
+        
     }, [])
 
     const deleteData = async (id) =>{
       await firebase.firestore().collection("exercises").doc(id).delete();
       fetchData() 
     }
-    
+
+console.log(isDone)
 
 return isAdmin ?(
    <Container className={classes.root}>
@@ -82,13 +118,13 @@ return isAdmin ?(
 
        <Grid item xs={12}>
           <div className={classes.header}>
-          JS Cvičení
+          JS Cvičení 
           </div>
         </Grid>
        
         <Grid item xs={12}>
-        <ul className={classes.listStyle}>
-        <Link to="/addExercise" className="underline"> 
+        <ul className={classes.listStyle} >
+        <Link to="/addExercise" className="underline" > 
           <Paper elevation={2} className={classes.paper} style={{marginBottom:"50px", color:"green"}}>
             Vytvořit  
            <AddIcon fontSize="large" className={classes.icon}></AddIcon>
@@ -98,6 +134,7 @@ return isAdmin ?(
         {exercises.map(exercises=>(
             
             <div className={classes.homeKapitoly}>
+              
               <li key={exercises.name}>
               <Paper elevation={2} className={classes.paper}>
                 <Link className="underline"  underline="none" to={"console/" + exercises.name}>
@@ -130,7 +167,7 @@ return isAdmin ?(
        
         <Grid item xs={12}>
         <ul className={classes.listStyle}>
-        
+      
         {exercises.map(exercises=>(
             
             <div className={classes.homeKapitoly}>
@@ -139,6 +176,17 @@ return isAdmin ?(
                 <Link className="underline"  underline="none" to={"console/" + exercises.name}>
                   {exercises.name} 
                   </Link>
+
+                   {isDone.map(exe =>(
+                     <>
+                     {exercises.id == exe ? (<>
+                      <CheckCircleIcon  fontSize="large" className={classes.icon}></CheckCircleIcon>
+                     </>) :
+                      (<>
+
+                      </>)}
+                     </>
+                   ))}
               </Paper>
               </li>  
               </div>
