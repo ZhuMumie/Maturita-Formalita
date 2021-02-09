@@ -89,7 +89,7 @@ export default function EditExercise() {
           setExeName(doc.data().name)
           setcheckbox(doc.data().isFuncTest) 
           isFunc = doc.data().isFuncTest;
-        
+          
          
         })
       } )
@@ -105,7 +105,7 @@ export default function EditExercise() {
         const tempDoc = []
         querySnapshot.forEach((doc)=>{
           tempDoc.push({id: doc.id, ...doc.data()})
-          console.log(tempDoc)
+       
           setSubId(doc.id)
         })
       }).catch(function(error){console.log(error)})
@@ -117,9 +117,6 @@ export default function EditExercise() {
 }, [])
 
  
-
-  console.log(subId)
-  console.log(docId)
 
 
 
@@ -243,11 +240,11 @@ const handleCloseAlert = (event, reason) => {
             <Form>
               <FormGroup onChange={(e)=> setExeName(e.target.value)}>
               <label htmlFor="ExerciseName">jmeno cviceni</label>
-              <FormInput value={name}></FormInput>
+              <FormInput value={exeName}></FormInput>
               </FormGroup>
               <FormGroup onChange={(e)=> setDescription(e.target.value)}>
               <label htmlFor="description">popis cviceni</label>
-              <FormTextarea ></FormTextarea>
+              <FormTextarea value={description} ></FormTextarea>
               </FormGroup>
               <FormGroup>
               <label></label>

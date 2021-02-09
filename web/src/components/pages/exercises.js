@@ -69,10 +69,10 @@ function Exercises(){
     const [user, setUser] = useState();
     const [isDone, setIsDone] = useState([]);
 
-    const {isAdmin} = React.useContext(AuthLocalContext)
+    const {isAdmin, currentUser} = React.useContext(AuthLocalContext)
     
     
-  const {currentUser} = React.useContext(AuthLocalContext)
+ 
   var curUser = firebase.auth().currentUser;
  
     const fetchData = async () =>{
@@ -110,7 +110,7 @@ function Exercises(){
       fetchData() 
     }
 
-console.log(isDone)
+
 
 return isAdmin ?(
    <Container className={classes.root}>

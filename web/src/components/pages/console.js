@@ -9,7 +9,7 @@ import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import { Container, Snackbar } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
-
+import {AuthLocalContext} from '../../moduly/authContext';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -46,12 +46,14 @@ function Console() {
   const [testCode, setTestCode] = useState("");
 
   const [exercise, setExercise] = useState([])
+  //todo p5edelat lmao takhle to nema bejt
+
   const [isFunc, setIsFunc] = useState()
 
 
   const db = firebase.firestore()
 
-  
+  const {currentUser} = React.useContext(AuthLocalContext)
 
   useLayoutEffect(()=>{
     var isFunc;
@@ -125,10 +127,10 @@ function render(e){
     {
        
     }
-    
-     setDoc(myInterpreter.value);
-  
-   
+      if(js.trim()!=""){ 
+     setDoc(String(myInterpreter.value));
+      }
+      
   }
   catch(error){
       setDoc(String(error));
@@ -167,9 +169,9 @@ const test =(e)=>{
   
         var regex = /function (.+)\(+/mg;
         var funName = regex.exec(js.trim())
-        console.log(funName)
+   
         var userFunTest = test.replace(/([a-zA-Z0-9_-]+)/, funName[1])
-        console.log(js.trim() + userFunTest)
+   
         var userCode = new Interpreter(js.trim() + "\n " + userFunTest, initFunc);
         userCode.run();
 
@@ -186,6 +188,7 @@ const test =(e)=>{
           if(field.length==i)
           {
             setOpen(true)
+
             //pridat checkmark
           }
         }

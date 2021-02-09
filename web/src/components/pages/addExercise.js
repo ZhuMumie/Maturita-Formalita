@@ -51,8 +51,7 @@ export default function AddExercise() {
     getData();
   }, [])
 
-  console.log(exercises)
-
+ 
   let history = useHistory();     
 
   const [doc, setDoc]=useState()
@@ -124,7 +123,7 @@ function renderSolution(e){
       
     }
   
-     setDoc(myInterpreter.value);
+     setDoc(String(myInterpreter.value));
   
    
   }
@@ -136,7 +135,7 @@ function renderSolution(e){
   function handleBtnChange(e){
     setFunTest(e)
     setfunResult(js + funTest)
-    console.log(funResult)
+ 
   }
 
 
@@ -195,7 +194,7 @@ async function createRecord(){
   
       history.push("/exercises");
     }).catch(function(error){
-      console.log(error)
+    
       setMessage("doslo k chybe pri vytvareni")
       setOpen(true)
       
@@ -240,11 +239,11 @@ const handleCloseAlert = (event, reason) => {
             <Form>
               <FormGroup onChange={(e)=> setName(e.target.value)}>
               <label htmlFor="ExerciseName">jmeno cviceni</label>
-              <FormInput />
+              <FormInput value={name} />
               </FormGroup>
               <FormGroup onChange={(e)=> setDescription(e.target.value)}>
               <label htmlFor="description">popis cviceni</label>
-              <FormTextarea ></FormTextarea>
+              <FormTextarea value={description} ></FormTextarea>
               </FormGroup>
               <FormGroup>
               <label></label>

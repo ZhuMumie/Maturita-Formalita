@@ -77,7 +77,7 @@ function Singup(props) {
       const db = firebase.firestore()
      await firebase.auth().onAuthStateChanged(async function (user){
         if(user){
-         console.log(user.uid)
+        
          if(await getExistUser(user.uid))
          {
           history.push("/")

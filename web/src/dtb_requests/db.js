@@ -17,7 +17,7 @@ export const getExercise = async () => {
         const tempDoc = querySnapshot.docs.map((doc) => {
             return { id: doc.id, ...doc.data() }
           })    
-          console.log(tempDoc)
+      
     })
 }
 
@@ -57,4 +57,11 @@ export const getUserID = async () =>{
         if(user) return user.uid
         else return null
       })
+}
+
+export const markDone = async (exeid, userid) =>{
+    await db.collection("progression").add({
+       exercise_id:exeid,
+       user_id:userid, 
+    })
 }
