@@ -10,6 +10,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Container, Snackbar } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import {AuthLocalContext} from '../../moduly/authContext';
+import * as Babel from '@babel/standalone'
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,6 +35,67 @@ const useStyles = makeStyles((theme) => ({
 
 
 function Console() {
+  //aaaaaaaaaaa
+  const koud = `class Rectangle {
+    constructor(height, width) {
+      this.height = height;
+      this.width = width;
+    }
+    // Getter
+    get area() {
+      return this.calcArea();
+    }
+    // Method
+    calcArea() {
+      return this.height * this.width;
+    }
+    
+   set current(name) {
+      this.log.push(name);
+    }
+  }
+  
+  let a = 20;
+  
+  const aa =6;
+  
+  `;
+  
+  
+  const plugin = [
+    '@babel/plugin-transform-classes'
+];
+
+//   babel.transform(
+//     koud,
+//     {
+//       plugins:["@babel/plugin-transform-classes"]
+//     },
+
+//     function(err, result) {
+//         console.log(result.code)
+//     }
+// )
+ 
+// const mrdka = babel.transformSync(koud, options,{plugins:[
+//   '@babel/plugin-transform-classes']})
+
+//   console.log(mrdka, )
+  
+var input = `class Car {
+  constructor(name, year) {
+    this.name = name;
+    this.year = year;
+  }
+  age() {
+    let date = new Date();
+    return date.getFullYear() - this.year;
+  }
+}
+
+let myCar = new Car("Ford", 2014);
+myCar.age();
+`;
 
     //consolovej text, sem přijde před připravenej kód, taky odtud půjde kód co dělá uživatel na testování
     const classes = useStyles();
@@ -112,7 +175,8 @@ const handleCloseAlert = (event, reason) => {
     interpreter.setProperty(globalObject, 'console', console);
 
     var wrapper = function(text) {
-      return (text);
+
+      return text;
     };
     interpreter.setProperty(console, 'log',
         interpreter.createNativeFunction(wrapper));
@@ -121,12 +185,20 @@ const handleCloseAlert = (event, reason) => {
 function render(e){
   e.preventDefault();
   try{
-    var myInterpreter = new Interpreter(js.trim(), initFunc);
-      
-    if(myInterpreter.run())
-    {
-       
+    var output = Babel.transform(js, { plugins: ['transform-classes', 'transform-block-scoping'] }).code;
+    
+    var myInterpreter = new Interpreter(output.trim(), initFunc);
+
+    function nextStep() {
+      if (myInterpreter.step()) {
+        window.setTimeout(nextStep(), 0);
+      }
     }
+ 
+    nextStep()
+ 
+    console.log(myInterpreter.value)
+
       if(js.trim()!=""){ 
      setDoc(String(myInterpreter.value));
       }
@@ -152,6 +224,8 @@ const test =(e)=>{
   
  
   const checkCode = () =>{
+
+
       setDoc(" ")
     if(isFunc)
     { 
@@ -289,5 +363,5 @@ const test =(e)=>{
 
   );
 }
-
+  
 export default Console;

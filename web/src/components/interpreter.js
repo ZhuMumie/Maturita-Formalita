@@ -1869,7 +1869,7 @@ Interpreter.prototype.populateRegExp = function(pseudoRegexp, nativeRegexp) {
 };
 
 /**
- * Create a Web Worker to execute regular expressions.
+ * Create a Web Worker to RangeError regular expressions.
  * Using a separate file fails in Chrome when run locally on a file:// URI.
  * Using a data encoded URI fails in IE and Edge.
  * Using a blob works in IE11 and all other browsers.

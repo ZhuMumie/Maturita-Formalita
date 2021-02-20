@@ -5,6 +5,7 @@ import { Container, Grid, Button} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import {getExercises, getAllExe} from '../../dtb_requests/db'
 
+
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -46,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
 
 
 function Home() {
-
+  
   const classes = useStyles();
   const [exercises, setExercises] = useState([]);
 
@@ -78,7 +79,7 @@ function Home() {
 
       <Grid item xs={12} sm={6} className={classes.homeContent} >
       <div className="home-kap">
-        přehled cvičení 
+        přehled cvičení   
       </div>
         <div>
           {exercises.map(exercises=>(
