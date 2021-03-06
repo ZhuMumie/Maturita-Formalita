@@ -4,6 +4,9 @@ import 'codemirror/theme/material.css'
 import 'codemirror/mode/xml/xml'
 import 'codemirror/mode/javascript/javascript'
 import 'codemirror/mode/css/css'
+import 'codemirror/addon/hint/show-hint';
+import 'codemirror/addon/hint/javascript-hint';
+import 'codemirror/addon/hint/show-hint.css';
 import  { Controlled } from 'react-codemirror2'
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -43,8 +46,11 @@ import { makeStyles } from '@material-ui/core/styles';
           lineNumbers: true,
           inputStyle: "textarea",
           viewportMargin:Infinity,
-          autofocus:true
-          
+          autofocus:true,
+          autocorrect: true,
+          extraKeys: {
+            'Ctrl-Space': 'autocomplete'
+          }
           
         }}
       />

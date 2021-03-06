@@ -12,7 +12,12 @@ import {AuthLocalContext} from '../../moduly/authContext';
 import fire from 'firebase'
 import {getUserID} from '../../dtb_requests/db'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-
+import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,6 +30,13 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor:"rgb(247, 247, 247)",
     fontSize:"1.5em",
    
+    paperOrder:{
+      padding: theme.spacing(2),
+      textAlign: 'left',
+      color: "pink",
+      backgroundColor:props => props.backgroundColor,
+      fontSize:"1.5em",
+    }
 
   },
   paperCompleted:{
@@ -76,7 +88,7 @@ function Exercises(){
   var curUser = firebase.auth().currentUser;
  
     const fetchData = async () =>{
-      const data = await firebase.firestore().collection("exercises");
+      const data = await firebase.firestore().collection("exercises").orderBy("exeOrder");
       const progress = await firebase.firestore().collection("progression");
    
       data.get().then((querySnapshot)=>{
@@ -86,6 +98,7 @@ function Exercises(){
             
           
         setExercises(tempDoc)
+
      
         progress.where("user_id", "==", curUser.uid).get().then(function(querySnapshot){
          const progTemp = querySnapshot.docs.map((progDoc) =>{
@@ -110,6 +123,53 @@ function Exercises(){
       fetchData() 
     }
 
+   
+    
+    
+const changeOrder = ()=>{
+  var i = -1;
+  firebase.firestore().collection("exercises").get().then(function(querySnapshot) {
+    querySnapshot.forEach(function(doc) {
+        
+        exercises.map((exercise, index)=>{
+         
+          if(doc.id==exercise.id){
+
+            firebase.firestore().collection("exercises").doc(doc.id).update({
+              exeOrder: index
+            })
+
+          }
+          
+        })
+        i++;
+      
+     
+    });
+});
+
+}
+
+const handleOnDragEnd = (result)=>{
+  if(!result.destination) return;
+  const items = Array.from(exercises)
+  const [reorderItem] =items.splice(result.source.index, 1)
+  items.splice(result.destination.index, 0, reorderItem)
+
+  setExercises(items)
+
+
+}
+
+const [open, setOpen] = React.useState(false);
+
+const handleClickOpen = () => {
+  setOpen(true);
+};
+
+const handleClose = () => {
+  setOpen(false);
+};
 
 
 return isAdmin ?(
@@ -121,33 +181,74 @@ return isAdmin ?(
           JS Cvičení 
           </div>
         </Grid>
-       
+     
         <Grid item xs={12}>
         <ul className={classes.listStyle} >
         <Link to="/addExercise" className="underline" > 
-          <Paper elevation={2} className={classes.paper} style={{marginBottom:"50px", color:"green"}}>
+          <Paper elevation={2} className={classes.paper} style={{marginBottom:"10px", color:"green"}}>
             Vytvořit  
            <AddIcon fontSize="large" className={classes.icon}></AddIcon>
           </Paper>
           </Link>
-        
-        {exercises.map(exercises=>(
-            
+
+          
+          <a href="#"  className="underline" onClick={changeOrder}> 
+          <Paper elevation={2} className={classes.paper} style={{marginBottom:"50px",  color:"green" }  }>
+           Změnit pořadí
+          </Paper>
+          </a>
+        </ul>
+        <DragDropContext onDragEnd={handleOnDragEnd}>
+          <Droppable droppableId='exercises'>
+            {(provided)=>(
+
+        <ul className={classes.listStyle} {...provided.droppableProps} ref={provided.innerRef}>
+        {exercises.map((exercise, index)=>(
+
+             <Draggable key={exercise.name} draggableId={exercise.name} index={index}>
+               {(provided) =>(
             <div className={classes.homeKapitoly}>
-              
-              <li key={exercises.name}>
+              <li {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
               <Paper elevation={2} className={classes.paper}>
-                <Link className="underline"  underline="none" to={"console/" + exercises.name}>
-                  {exercises.name} 
+                <Link className="underline"  underline="none" to={"console/" + exercise.name}>
+                  {exercise.name}
                   </Link>
-                  <button className={classes.btn} onClick={() => deleteData(exercises.id)}><DeleteIcon fontSize="large" className={classes.icon} ></DeleteIcon></button>
-                  <Link className="underline"  underline="none" to={"editExercise/" + exercises.name}><EditIcon fontSize="large" className={classes.icon}></EditIcon></Link>
+                  <button className={classes.btn} onClick={() => deleteData(exercise.id)}><DeleteIcon fontSize="large" className={classes.icon} ></DeleteIcon></button>
+                  <Link className="underline"  underline="none" to={"editExercise/" + exercise.name}><EditIcon fontSize="large" className={classes.icon}></EditIcon></Link>
               </Paper>
               </li>  
               </div>
-            
+              )}
+
+              </Draggable>
           ))} 
+          {provided.placeholder}
           </ul>
+          )}
+          </Droppable>
+          </DragDropContext>
+          <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Use Google's location service?"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Let Google help apps determine location. This means sending anonymous location data to
+            Google, even when no apps are running.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Disagree
+          </Button>
+          <Button onClick={handleClose} color="primary" autoFocus>
+            Agree
+          </Button>
+        </DialogActions>
+      </Dialog>
         </Grid>
        
       </Grid>

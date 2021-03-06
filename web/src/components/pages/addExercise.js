@@ -12,7 +12,7 @@ import  Reader from '../reader';
 import firebase from "firebase"
 import CloseIcon from '@material-ui/icons/Close';
 import { useHistory } from "react-router-dom";
-import {getExercise, getExercises, getExerByName} from '../../dtb_requests/db';
+import {getExercise, getExercises, getExerByName, giveExeOrder} from '../../dtb_requests/db';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -37,16 +37,21 @@ function getSteps() {
 }
 
 
+
 export default function AddExercise() {
 
   const [exercises, setExercise] = useState()
   
   const [isLoading, setIsLoading] = useState(false);
-  
+
+  const [exerciseOrder, setExerciseOrder] = useState()
+
   useLayoutEffect(()=>{
    const getData = async () =>{
       setExercise(await getExercises());
-
+    
+    setExerciseOrder(await giveExeOrder()+1)
+   
    }
     getData();
   }, [])
@@ -178,7 +183,7 @@ async function createRecord(){
       description:description,
       isFuncTest:checkbox,
       isRequired:required,
-      exeOrder:1
+      exeOrder:exerciseOrder
     }).then(function(docRef){
   
     var subColName = "";

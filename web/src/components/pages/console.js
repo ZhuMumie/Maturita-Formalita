@@ -197,7 +197,6 @@ function render(e){
  
     nextStep()
  
-    console.log(myInterpreter.value)
 
       if(js.trim()!=""){ 
      setDoc(String(myInterpreter.value));
@@ -209,15 +208,6 @@ function render(e){
   }
   
 }
-
-
-const test =(e)=>{
-  e.preventDefault();
-  
-
-}
-
-  const [testField, setTestField] = useState();
 
 
 

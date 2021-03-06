@@ -1,6 +1,7 @@
 import React, {useState, useLayoutEffect } from 'react';
 import fire from "firebase"
 import firebase from "firebase"
+import { number } from 'shards-react';
 const db = firebase.firestore()
 
 
@@ -64,4 +65,23 @@ export const markDone = async (exeid, userid) =>{
        exercise_id:exeid,
        user_id:userid, 
     })
+}
+
+export const giveExeOrder = async () =>{
+    var num = 0;
+    await  db.collection("exercises").get().then((querySnapshot)=>{
+        const tempDoc = querySnapshot.docs.map((doc) => {
+            return { id: doc.id, ...doc.data() }
+          })
+        
+        tempDoc.map((exercise)=>{
+           if(num<exercise.exeOrder)
+           {
+               num=exercise.exeOrder
+           }
+           else num++
+        })
+    })
+    
+    return num
 }
