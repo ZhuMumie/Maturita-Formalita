@@ -1,8 +1,8 @@
 import { Container, Grid, Paper} from '@material-ui/core';
 import React, {useState, useEffect} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import {getExercises} from '../../dtb_requests/db';
 import {Link} from "react-router-dom";
+import clsx from 'clsx';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
@@ -10,7 +10,6 @@ import firebase from "firebase";
 import Button from '@material-ui/core/Button';
 import {AuthLocalContext} from '../../moduly/authContext';
 import fire from 'firebase'
-import {getUserID} from '../../dtb_requests/db'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
 import Dialog from '@material-ui/core/Dialog';
@@ -18,10 +17,22 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import Fab from '@material-ui/core/Fab';
+import CheckIcon from '@material-ui/icons/Check';
+import SaveIcon from '@material-ui/icons/Save';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { green } from '@material-ui/core/colors';
+import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
+  },
+  wrapper: {
+    bottom: 0,
+  
+    position: 'sticky',
   },
   paper: {
     padding: theme.spacing(2),
@@ -47,6 +58,11 @@ const useStyles = makeStyles((theme) => ({
     fontSize:"1.5em",
    
   },
+  absolute: {
+    position: 'absolute',
+    bottom: theme.spacing(2),
+    right: theme.spacing(3),
+  },
 
   header:{
     textAlign: 'center',
@@ -70,6 +86,26 @@ const useStyles = makeStyles((theme) => ({
     float:"right",
     backgroundColor:"rgb(247, 247, 247)",
     
+  },
+  buttonSuccess: {
+    backgroundColor: green[500],
+    '&:hover': {
+      backgroundColor: green[700],
+    },
+  },
+  fabProgress: {
+    position: 'absolute',
+    zIndex: 1,
+    bottom: theme.spacing(2),
+    right: theme.spacing(3),
+  }, 
+   buttonProgress: {
+    color: green[500],
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginTop: -12,
+    marginLeft: -12,
   }
 
 }));
@@ -118,6 +154,28 @@ function Exercises(){
         
     }, [])
 
+    const [loading, setLoading] = React.useState(false);
+    const [success, setSuccess] = React.useState(false);
+    const timer = React.useRef();
+
+    const handleButtonClick = () => {
+      if (!loading) {
+        setSuccess(false);
+        setLoading(true);
+        timer.current = window.setTimeout(() => {
+          setSuccess(true);
+          changeOrder();
+          setLoading(false);
+          
+        }, 2000);
+        timer.current = window.setTimeout(() => { 
+         
+          setShowSave(false)
+        }, 3000);
+      }
+      
+    };
+
     const deleteData = async (id) =>{
       await firebase.firestore().collection("exercises").doc(id).delete();
       fetchData() 
@@ -149,9 +207,10 @@ const changeOrder = ()=>{
 });
 
 }
-
+const [showSave, setShowSave] = useState(false);
 const handleOnDragEnd = (result)=>{
   if(!result.destination) return;
+  setShowSave(true)
   const items = Array.from(exercises)
   const [reorderItem] =items.splice(result.source.index, 1)
   items.splice(result.destination.index, 0, reorderItem)
@@ -173,6 +232,7 @@ const handleClose = () => {
 
 
 return isAdmin ?(
+  <div>
    <Container className={classes.root}>
        <Grid container spacing={3}>
 
@@ -191,13 +251,8 @@ return isAdmin ?(
           </Paper>
           </Link>
 
-          
-          <a href="#"  className="underline" onClick={changeOrder}> 
-          <Paper elevation={2} className={classes.paper} style={{marginBottom:"50px",  color:"green" }  }>
-           Změnit pořadí
-          </Paper>
-          </a>
         </ul>
+        
         <DragDropContext onDragEnd={handleOnDragEnd}>
           <Droppable droppableId='exercises'>
             {(provided)=>(
@@ -253,8 +308,27 @@ return isAdmin ?(
        
       </Grid>
 
+     
        
    </Container>
+      {showSave ? (<>
+        <div className={classes.wrapper}>
+        
+        <Fab
+          aria-label="save"
+          color="primary"
+          className={classes.absolute}
+          onClick={handleButtonClick}
+        >
+          {success ? <CheckIcon /> : <SaveIcon />}
+        </Fab>
+        {loading && <CircularProgress size={58} className={classes.fabProgress} />}
+        
+        </div>
+      </>) : (<></>)}
+   
+
+   </div>
 ):(
 
 <Container className={classes.root}>

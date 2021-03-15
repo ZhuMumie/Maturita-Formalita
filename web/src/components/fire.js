@@ -15,5 +15,6 @@ import firebase from 'firebase';
   const fire = firebase.initializeApp(firebaseConfig);
   firebase.analytics();
   const db = firebase.firestore()
+  var functions = firebase.functions();
   
   export default fire;

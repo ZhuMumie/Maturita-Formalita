@@ -70,7 +70,7 @@ function Home() {
           </div>
 
           <div className={classes.headerText}>
-            current exersice
+            current exercise
           </div>
           <div>
           <Button color="inherit" size="large" className={classes.continueBtn} >pokračovat</Button>
@@ -79,17 +79,18 @@ function Home() {
 
       <Grid item xs={12} sm={6} className={classes.homeContent} >
       <div className="home-kap">
-        přehled cvičení   
+       About
       </div>
         <div>
-          {exercises.map(exercises=>(
+          teewfads
+          {/* {exercises.map(exercises=>(
             <div className="home-kapitoly">
               <li key={exercises.name} className={classes.link}>
                 <Link to={"console/" + exercises.name}  className={classes.aHref}> {exercises.name} </Link>
                 
               </li>  
             </div>
-          ))}
+          ))} */}
         </div>
       <div>
         

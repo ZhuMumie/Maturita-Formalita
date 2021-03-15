@@ -40,6 +40,13 @@ function getSteps() {
 
 export default function AddExercise() {
 
+  var getOrder = firebase.functions().httpsCallable('getOrder');
+
+  getOrder().then(result =>{
+    console.log(result.data);
+  }).catch((error)=>{
+    console.log(error)
+  })
   const [exercises, setExercise] = useState()
   
   const [isLoading, setIsLoading] = useState(false);
@@ -254,10 +261,7 @@ const handleCloseAlert = (event, reason) => {
               <label></label>
               <FormCheckbox checked={checkbox} onChange={(e)=> handleCheckBox(e, "function")}>vysledek cviceni je funkce</FormCheckbox>
               </FormGroup>
-              <FormGroup>
-              <label></label>
-              <FormCheckbox checked={required} onChange={(e)=> handleReq(e, "function")}>cvičení zapadá do kurzu</FormCheckbox>
-              </FormGroup>
+             
             </Form>
             <Button
               variant="contained"

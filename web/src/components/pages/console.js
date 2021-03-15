@@ -96,13 +96,16 @@ var input = `class Car {
 let myCar = new Car("Ford", 2014);
 myCar.age();
 `;
+  
+
+
 
     //consolovej text, sem přijde před připravenej kód, taky odtud půjde kód co dělá uživatel na testování
     const classes = useStyles();
   const [js, setJs]=useState('')
   const [doc, setDoc]=useState()
   const [ans, setAns] = useState('')
-
+const [id, setId] = useState()
   const [description, setDescription] = useState("")
   const { name } = useParams();
   const [exeName, setExeName] = useState("");
@@ -131,6 +134,7 @@ myCar.age();
           setExeName(doc.data().name)
           setIsFunc(doc.data().isFuncTest)
           isFunc = doc.data().isFuncTest
+          setId(doc.id)
           
           
         const subCol = db.collection("exercises").doc(doc.id).collection(isFunc ? ("test_func"):("test_log"));
@@ -210,11 +214,13 @@ function render(e){
 }
 
 
+    var getOrder = firebase.functions().httpsCallable('getOrder');
+    var updateProgression = firebase.functions().httpsCallable('updateProgression')
+    var getExe = firebase.functions().httpsCallable('getExercises');
 
-  
- 
+
   const checkCode = () =>{
-
+  
 
       setDoc(" ")
     if(isFunc)
@@ -226,7 +232,7 @@ function render(e){
       var test;
       var i=0;
       for(test of field)
-      {
+      { //musím stepovat
         var finalCode = new Interpreter(ans.trim() + test, initFunc);
         finalCode.run();
       
@@ -252,7 +258,9 @@ function render(e){
           if(field.length==i)
           {
             setOpen(true)
-
+            updateProgression({exeId:id}).catch((error)=>{
+              console.log(error)
+            })
             //pridat checkmark
           }
         }
@@ -274,6 +282,9 @@ function render(e){
       if(userCode.value==testCode)
       {
         setOpen(true)
+        updateProgression({exeId:id}).catch((error)=>{
+          console.log(error)
+        })
       }
       
       else{

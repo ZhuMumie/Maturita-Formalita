@@ -8,6 +8,13 @@ body {
 
 }
 
+.CodeMirror-scroll {
+  height: auto;
+  overflow-y: hidden;
+  overflow-x: auto;
+}
+
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
@@ -133,10 +140,6 @@ padding-top: 5vh;
   height: 100vh;
 }
 
-.CodeMirror-sizer{
-  height: 200px !important;
-  border: none !important;
-}
 
 .underline:hover{
   text-decoration: none;

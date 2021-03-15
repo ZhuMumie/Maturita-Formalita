@@ -60,12 +60,6 @@ export const getUserID = async () =>{
       })
 }
 
-export const markDone = async (exeid, userid) =>{
-    await db.collection("progression").add({
-       exercise_id:exeid,
-       user_id:userid, 
-    })
-}
 
 export const giveExeOrder = async () =>{
     var num = 0;

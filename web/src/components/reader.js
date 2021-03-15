@@ -39,13 +39,13 @@ import { makeStyles } from '@material-ui/core/styles';
         value={value} 
         className={classes.CodeMirror}
         options={{ 
-          lineWrapping: true,
+          scrollbarStyle:null,
+          lineWrapping: false,
           lint: true,
           mode: 'javascript',
           theme: 'material',
           lineNumbers: true,
           inputStyle: "textarea",
-          viewportMargin:Infinity,
           autofocus:true,
           autocorrect: true,
           extraKeys: {
