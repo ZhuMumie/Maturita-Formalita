@@ -13,6 +13,7 @@ import firebase from "firebase"
 import CloseIcon from '@material-ui/icons/Close';
 import { useHistory } from "react-router-dom";
 import {getExercise, getExercises, getExerByName, giveExeOrder} from '../../dtb_requests/db';
+import * as Babel from '@babel/standalone'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function getSteps() {
-  return ['název a popis cvičení', 'očekávené řešení', 'testování'];
+  return ['název a popis cvičení', 'očekávené řešení','uživatelský pohled' ,'testování'];
 }
 
 
@@ -65,7 +66,7 @@ export default function AddExercise() {
 
  
   let history = useHistory();     
-
+//cely je to spatne, neni cas predelat
   const [doc, setDoc]=useState()
   const [js, setJs]=useState("")
   const [name, setName] = useState("");
@@ -78,7 +79,7 @@ export default function AddExercise() {
   const [logResult, setLogResult] =useState("")
   const [parse, setParse]= useState(false)
   const [message, setMessage] = useState("")
-
+  const [userView, setUserView] = useState("")
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
   const steps = getSteps();
@@ -128,7 +129,9 @@ export default function AddExercise() {
 function renderSolution(e){
   e.preventDefault();
   try{
-    var myInterpreter = new Interpreter(js.trim(), initFunc);
+    var output = Babel.transform(js, { plugins: ['transform-classes', 'transform-block-scoping'] }).code;
+
+    var myInterpreter = new Interpreter(output.trim(), initFunc);
       
     if(myInterpreter.run())
     {
@@ -157,9 +160,11 @@ function renderSolution(e){
   e.preventDefault();
 
    
-    setfunResult(js +funTest)
+    setfunResult(js + funTest)
     try{
-    var myInter = new Interpreter(funResult.trim(), initFunc);
+    
+      var output = Babel.transform(funResult, { plugins: ['transform-classes', 'transform-block-scoping'] }).code;
+    var myInter = new Interpreter(output.trim(), initFunc);
       
     if(myInter.run())
     {
@@ -186,11 +191,12 @@ async function createRecord(){
     const db = firebase.firestore()
     db.collection("exercises").add({
       name:name,
-      code: js,
+      code: js,   
       description:description,
       isFuncTest:checkbox,
       isRequired:required,
-      exeOrder:exerciseOrder
+      exeOrder:exerciseOrder,
+      userView:userView
     }).then(function(docRef){
   
     var subColName = "";
@@ -333,7 +339,54 @@ const handleCloseAlert = (event, reason) => {
           
 
             ,
-            '2': <div>
+            '2':<>
+            <div>
+                  <div className="topText">
+                  vytvořte pohled uživatele
+                  </div>
+
+                  <Grid container  justify="center">
+                  <Grid item xs={6} >
+                      <Reader value={userView} onChange={setUserView} height="400px" />
+                   
+
+                    
+                      
+
+                      <Grid container
+                        direction="row"
+                        justify="space-between"
+                        
+                      >
+                    
+                        <Grid>
+                          <Button
+                            variant="contained"
+                            disabled={activeStep === 0}
+                            onClick={handleBack}
+                            className={classes.backButton}
+                            size="large"
+                            
+                            >
+                              Zpět
+                          </Button>
+
+                          <Button variant="contained" color="primary" size="large" onClick={handleNext}>
+                            Pokračovat
+                          </Button>
+                        </Grid>
+
+                      </Grid>
+
+                     </Grid>
+
+                  </Grid>
+              
+
+                </div>
+          
+            </>,
+            '3': <div>
                   {checkbox ? (
                   <>
                   <div className="topText">

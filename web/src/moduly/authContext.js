@@ -46,7 +46,7 @@ const AuthLocalProvider=({children})=>{
                 if (doc.exists) {
                   setIsAdmin(doc.data().isAdmin)
               } else {
-                  console.log("No such document!");
+                setIsAdmin(false);
               }
               })
           }

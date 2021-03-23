@@ -21,6 +21,21 @@ exports.updateProgression = functions.https.onCall((data, context)=>{
 })
 
 
+exports.updateCurrentExercise = functions.https.onCall((data, context)=>{
+  if(!context.auth){
+    throw new functions.https.HttpsError('failed-precondition',
+    'user needs to be authenticated.');
+  } 
+
+  const exId = data.exeId;
+  const  UId = context.auth.uid;
+
+  return admin.firestore().collection('users').doc(UId).update({
+    current_exercise_id:exId
+  })
+})
+
+
 exports.getOrder = functions.https.onRequest((req, res)=>{
   var order = [];
   admin.firestore().collection('exercises').get().then(snapshot =>{

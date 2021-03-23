@@ -35,73 +35,13 @@ const useStyles = makeStyles((theme) => ({
 
 
 function Console() {
-  //aaaaaaaaaaa
-  const koud = `class Rectangle {
-    constructor(height, width) {
-      this.height = height;
-      this.width = width;
-    }
-    // Getter
-    get area() {
-      return this.calcArea();
-    }
-    // Method
-    calcArea() {
-      return this.height * this.width;
-    }
-    
-   set current(name) {
-      this.log.push(name);
-    }
-  }
-  
-  let a = 20;
-  
-  const aa =6;
-  
-  `;
-  
-  
-  const plugin = [
-    '@babel/plugin-transform-classes'
-];
-
-//   babel.transform(
-//     koud,
-//     {
-//       plugins:["@babel/plugin-transform-classes"]
-//     },
-
-//     function(err, result) {
-//         console.log(result.code)
-//     }
-// )
  
-// const mrdka = babel.transformSync(koud, options,{plugins:[
-//   '@babel/plugin-transform-classes']})
-
-//   console.log(mrdka, )
-  
-var input = `class Car {
-  constructor(name, year) {
-    this.name = name;
-    this.year = year;
-  }
-  age() {
-    let date = new Date();
-    return date.getFullYear() - this.year;
-  }
-}
-
-let myCar = new Car("Ford", 2014);
-myCar.age();
-`;
-  
 
 
 
     //consolovej text, sem přijde před připravenej kód, taky odtud půjde kód co dělá uživatel na testování
     const classes = useStyles();
+ 
   const [js, setJs]=useState('')
   const [doc, setDoc]=useState()
   const [ans, setAns] = useState('')
@@ -135,6 +75,7 @@ const [id, setId] = useState()
           setIsFunc(doc.data().isFuncTest)
           isFunc = doc.data().isFuncTest
           setId(doc.id)
+          setJs(doc.data().userView)
           
           
         const subCol = db.collection("exercises").doc(doc.id).collection(isFunc ? ("test_func"):("test_log"));
@@ -165,21 +106,15 @@ const handleCloseAlert = (event, reason) => {
   setOpen(false);
 };
  
-// useLayoutEffect(()=>{
-//       const fetchExercise = async () =>{
-//         setExercise(await getExercise(name))
-//       }
-//       fetchExercise()
-// }, [])
 
-//   console.log(exercise[0]["code"])
+  const [consoleLog, setConsoleLog] = useState([])
 
   var initFunc = function(interpreter, globalObject) {
     var console = interpreter.nativeToPseudo({});
     interpreter.setProperty(globalObject, 'console', console);
 
     var wrapper = function(text) {
-
+      setConsoleLog(consolelog => [...consolelog, text]);
       return text;
     };
     interpreter.setProperty(console, 'log',
@@ -190,7 +125,7 @@ function render(e){
   e.preventDefault();
   try{
     var output = Babel.transform(js, { plugins: ['transform-classes', 'transform-block-scoping'] }).code;
-    
+    setConsoleLog([])
     var myInterpreter = new Interpreter(output.trim(), initFunc);
 
     function nextStep() {
@@ -202,9 +137,14 @@ function render(e){
     nextStep()
  
 
-      if(js.trim()!=""){ 
+      if(js.trim()!=undefined){ 
      setDoc(String(myInterpreter.value));
+        // if(myInterpreter.value==consoleLog[consoleLog.length - 1])
+        // {
+        //   setDoc(consoleLog)
+        // }
       }
+ 
       
   }
   catch(error){
@@ -233,23 +173,20 @@ function render(e){
       var i=0;
       for(test of field)
       { //musím stepovat
-        var finalCode = new Interpreter(ans.trim() + test, initFunc);
-        finalCode.run();
+        var output = Babel.transform(ans, { plugins: ['transform-classes', 'transform-block-scoping'] }).code;
+        var finalCode = new Interpreter(output.trim() + test, initFunc);
+        finalCode.run();  
       
   
-        var regex = /function (.+)\(+/mg;
-        var funName = regex.exec(js.trim())
-   
-        var userFunTest = test.replace(/([a-zA-Z0-9_-]+)/, funName[1])
-   
-        var userCode = new Interpreter(js.trim() + "\n " + userFunTest, initFunc);
+        var Useroutput = Babel.transform(js, { plugins: ['transform-classes', 'transform-block-scoping'] }).code;
+        var userCode = new Interpreter(Useroutput.trim() + "\n " + test, initFunc);
         userCode.run();
 
   
         
         if(finalCode.value !== userCode.value)
         {
-          setDoc("kód selhal na testu: " + userFunTest) 
+          setDoc("kód selhal na testu: " + test) 
           break
         }
         
@@ -275,7 +212,8 @@ function render(e){
    }
    else{
     try{
-      var userCode = new Interpreter(js.trim(), initFunc);
+      var output = Babel.transform(js, { plugins: ['transform-classes', 'transform-block-scoping'] }).code;
+      var userCode = new Interpreter(output.trim(), initFunc);
       userCode.run();
 
 

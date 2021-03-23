@@ -12,6 +12,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "shards-ui/dist/css/shards.min.css";
 import fire from './components/fire';
 import  ProtectedRouter  from './components/ProtectedRoute.js';
+import  AdminRouter  from './components/adminRouter.js';
 import {AuthContext} from './moduly/authContext';
 
 
@@ -28,8 +29,8 @@ function App() {
            <Route path="/signup" > <Singup></Singup> </Route>
            <ProtectedRouter path="/" exact={true} component={Home} ></ProtectedRouter>
            <ProtectedRouter path="/console/:name"  component={Console} ></ProtectedRouter>
-           <ProtectedRouter path="/addExercise" exact={true} component={ AddExercise} ></ProtectedRouter>
-           <ProtectedRouter path="/editExercise/:name"  component={EditExercise} ></ProtectedRouter>
+           <AdminRouter path="/addExercise" exact={true} component={ AddExercise}></AdminRouter>
+           <AdminRouter path="/editExercise/:name"  component={EditExercise} ></AdminRouter>
            <ProtectedRouter path="/exercises" exact={true} component={ Exercises} ></ProtectedRouter>
           </Switch>
           

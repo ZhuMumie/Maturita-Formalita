@@ -98,10 +98,7 @@ function Singup(props) {
   
   return currentUser ?( 
     <div>
-          <Navibar></Navibar>
-          <Container>
-          You are already logged in
-          </Container>
+          <Redirect to="/" />
     </div>
   ) 
   : 

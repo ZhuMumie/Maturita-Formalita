@@ -12,6 +12,21 @@ export const getExercises = async () => {
     
 }
 
+
+export const getCurrentExercise = async () => {
+    var user = null;
+    await fire.auth().onAuthStateChanged(user =>{
+        if(user) user = user.uid;
+        else return null
+      })
+
+    const data = await db.collection("users").doc(user).get();
+    
+    return(data.docs.map(doc=>doc.data()))
+    
+}
+
+
 export const getExercise = async () => {
     const data = await db.collection("exercises");
     data.get().then((querySnapshot)=>{

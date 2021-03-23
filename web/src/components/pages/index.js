@@ -79,10 +79,11 @@ function Home() {
 
       <Grid item xs={12} sm={6} className={classes.homeContent} >
       <div className="home-kap">
-       About
+     J
       </div>
+      s úlohy je webová aplikace obsahující své vlastní programovací prostředí, ve kterém může uživatel plnit různá zadání a zlepšovat se v jazyce JavaScript.
         <div>
-          teewfads
+          
           {/* {exercises.map(exercises=>(
             <div className="home-kapitoly">
               <li key={exercises.name} className={classes.link}>
@@ -98,7 +99,7 @@ function Home() {
       </Grid>
 
       <Grid item xs={12} sm={6} className={classes.homeContent}>
-      <LoadBar value="60" className={'loadBar ' + classes.homeContent} bgcolor="#5a6169"></LoadBar> 
+      
       </Grid>
 
     </Grid>

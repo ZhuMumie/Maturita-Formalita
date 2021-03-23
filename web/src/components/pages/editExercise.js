@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function getSteps() {
-  return ['název a popis cvičení', 'očekávené řešení', 'testování'];
+  return ['název a popis cvičení', 'očekávené řešení', 'uživatelský pohled', 'testování'];
 }
 
 
@@ -52,11 +52,11 @@ export default function EditExercise() {
   const [funResult, setfunResult] =useState("")
   const [logResult, setLogResult] =useState("")
   const [parse, setParse]= useState(false)
-
+  const [userView, setUserView] = useState()
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
   const steps = getSteps();
-
+  const [test, setTest] = useState();
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
@@ -87,6 +87,7 @@ export default function EditExercise() {
           setJs(doc.data().code)
           setDescription(doc.data().description)
           setExeName(doc.data().name)
+          setUserView(doc.data().userView)
           setcheckbox(doc.data().isFuncTest) 
           isFunc = doc.data().isFuncTest;
           
@@ -105,7 +106,7 @@ export default function EditExercise() {
         const tempDoc = []
         querySnapshot.forEach((doc)=>{
           tempDoc.push({id: doc.id, ...doc.data()})
-       
+        setFunTest(doc.data().test)
           setSubId(doc.id)
         })
       }).catch(function(error){console.log(error)})
@@ -321,7 +322,54 @@ const handleCloseAlert = (event, reason) => {
           
 
             ,
-            '2': <div>
+            '2':  <div>
+            <div className="topText">
+            vytvořte pohled uživatele
+            </div>
+
+            <Grid container  justify="center">
+            <Grid item xs={6} >
+                <Reader value={userView} onChange={setUserView} height="400px" />
+             
+
+              
+                
+
+                <Grid container
+                  direction="row"
+                  justify="space-between"
+                  
+                >
+              
+                  <Grid container
+                     direction="row"
+                    justify="space-between">
+                    <Button
+                      variant="contained"
+                      disabled={activeStep === 0}
+                      onClick={handleBack}
+                      className={classes.backButton}
+                      size="large"
+                      style={{marginTop:'10px'}}
+                      
+                      >
+                        Zpět
+                    </Button>
+
+                    <Button variant="contained" color="primary" size="large" onClick={handleNext} style={{marginTop:'10px'}}>
+                      Pokračovat
+                    </Button>
+                  </Grid>
+
+                </Grid>
+
+               </Grid>
+
+            </Grid>
+        
+
+          </div>,
+            '3': <div>
                   {checkbox ? (
                   <>
                   <div className="topText">
