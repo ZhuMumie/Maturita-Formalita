@@ -3,36 +3,53 @@ import React, {useState, useEffect} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {Link} from "react-router-dom";
 import clsx from 'clsx';
+import Button from '@material-ui/core/Button';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
 import firebase from "firebase";
-import Button from '@material-ui/core/Button';
 import {AuthLocalContext} from '../../moduly/authContext';
-import fire from 'firebase'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import Fab from '@material-ui/core/Fab';
 import CheckIcon from '@material-ui/icons/Check';
 import SaveIcon from '@material-ui/icons/Save';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { green } from '@material-ui/core/colors';
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import InputLabel from '@material-ui/core/InputLabel';
+import Input from '@material-ui/core/Input';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
   },
+  container: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
   wrapper: {
     bottom: 0,
   
     position: 'sticky',
+  },
+  sortBtn:{
+    textTransform:'lowercase',
+    cursor:'pointer',
+    color:"black !important"
+
   },
   paper: {
     padding: theme.spacing(2),
@@ -116,9 +133,9 @@ function Exercises(){
     const [exercises, setExercises] = useState([])
     const [user, setUser] = useState();
     const [isDone, setIsDone] = useState([]);
-
+    const [originalExe, setOriginalExe] = useState([])
     const {isAdmin, currentUser} = React.useContext(AuthLocalContext)
-    
+    const [tags,setTags] = useState([])
     
  
   var curUser = firebase.auth().currentUser;
@@ -126,13 +143,18 @@ function Exercises(){
     const fetchData = async () =>{
       const data = await firebase.firestore().collection("exercises").orderBy("exeOrder");
       const progress = await firebase.firestore().collection("progression");
-   
+      const tags = firebase.firestore().collection("tags").doc("tags");
+
+      tags.get().then((doc)=>{
+      
+        setTags(doc.data().tags)
+      })
       data.get().then((querySnapshot)=>{
           const tempDoc = querySnapshot.docs.map((doc) => {
               return { id: doc.id, ...doc.data() }
             })
             
-          
+        setOriginalExe(tempDoc)
         setExercises(tempDoc)
 
      
@@ -146,7 +168,7 @@ function Exercises(){
           
       })
      
-
+     
 
     }
     useEffect(()=>{
@@ -226,15 +248,37 @@ const handleOnDragEnd = (result)=>{
 }
 
 const [open, setOpen] = React.useState(false);
-
+const [tag, setTag] = useState('');
 const handleClickOpen = () => {
   setOpen(true);
+  
 };
 
 const handleClose = () => {
   setOpen(false);
 };
 
+const handleChange = (event) => {
+  setTag(String(event.target.value) || "");
+  
+
+};
+
+const sortExe= (tag) =>{  
+  if(tag=="none"){
+    setExercises(originalExe)
+  }
+  else{
+  const sortedExe = originalExe.filter(exe => exe.tags.indexOf(tag) >= 0)
+  setExercises(sortedExe)
+  }
+} 
+
+const handleSortUpdate = () =>{
+  sortExe(tag)
+  setOpen(false);
+  
+}
 
 return isAdmin ?(
   <div>
@@ -255,19 +299,63 @@ return isAdmin ?(
            <AddIcon fontSize="large" className={classes.icon}></AddIcon>
           </Paper>
           </Link>
-
+         <div onClick={handleClickOpen} className={classes.sortBtn}>
+          <Paper elevation={2} className={classes.paper} style={{marginBottom:"10px", color:"green"}}>
+          sort
+          <ArrowDropDownIcon fontSize="large" className={classes.icon}></ArrowDropDownIcon>
+          </Paper>
+          </div>
         </ul>
+
+        <Dialog disableBackdropClick disableEscapeKeyDown open={open} onClose={handleClose}>
+        <DialogTitle>Filtrovat</DialogTitle>
+        <DialogContent>
+          <form className={classes.container}>
+           
+            <FormControl className={classes.formControl}>
+              <InputLabel id="demo-dialog-select-label">tags</InputLabel>
+              <Select
+                labelId="demo-dialog-select-label"
+                id="demo-dialog-select"
+                value={tag}
+                onChange={handleChange}
+                input={<Input />}
+              >
+                
+                <MenuItem value="none" key="">
+                  <em>žádný</em>
+                </MenuItem>
+                {tags.map((tag, index)=>(
+                  <MenuItem value={tag} key={tag}>{tag}</MenuItem>
+                ))}
+               
+             
+              </Select>
+            </FormControl>
+          </form>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleSortUpdate} color="primary">
+            Ok
+          </Button>
+        </DialogActions>
+      </Dialog>
+
         
         <DragDropContext onDragEnd={handleOnDragEnd}>
           <Droppable droppableId='exercises'>
             {(provided)=>(
 
         <ul className={classes.listStyle} {...provided.droppableProps} ref={provided.innerRef}>
-        {exercises.map((exercise, index)=>(
-
+        {exercises.map((exercise, index)=>( 
+         
              <Draggable key={exercise.name} draggableId={exercise.name} index={index}>
                {(provided) =>(
             <div className={classes.homeKapitoly}>
+            
               <li {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
               <Paper elevation={2} className={classes.paper}>
                 <Link className="underline"  underline="none" to={"console/" + exercise.name}>
@@ -325,8 +413,54 @@ return isAdmin ?(
         </Grid>
        
         <Grid item xs={12}>
+
+        <Dialog disableBackdropClick disableEscapeKeyDown open={open} onClose={handleClose}>
+        <DialogTitle>Filtrovat</DialogTitle>
+        <DialogContent>
+          <form className={classes.container}>
+           
+            <FormControl className={classes.formControl}>
+              <InputLabel id="demo-dialog-select-label">tags</InputLabel>
+              <Select
+                labelId="demo-dialog-select-label"
+                id="demo-dialog-select"
+                value={tag}
+                onChange={handleChange}
+                input={<Input />}
+              >
+                
+                <MenuItem value="none" key="">
+                  <em>žádný</em>
+                </MenuItem>
+                {tags.map((tag, index)=>(
+                  <MenuItem value={tag} key={tag}>{tag}</MenuItem>
+                ))}
+               
+             
+              </Select>
+            </FormControl>
+          </form>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleSortUpdate} color="primary">
+            Ok
+          </Button>
+        </DialogActions>
+      </Dialog>
+
         <ul className={classes.listStyle}>
-      
+        <div onClick={handleClickOpen} className={classes.sortBtn}>
+          <Paper elevation={2} className={classes.paper} style={{marginBottom:"10px", color:"green"}}>
+          sort
+          <ArrowDropDownIcon fontSize="large" className={classes.icon}></ArrowDropDownIcon>
+          </Paper>
+          </div>
+
+
+
         {exercises.map(exercises=>(
             
             <div className={classes.homeKapitoly}>

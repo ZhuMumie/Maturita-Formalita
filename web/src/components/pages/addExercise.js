@@ -14,6 +14,9 @@ import CloseIcon from '@material-ui/icons/Close';
 import { useHistory } from "react-router-dom";
 import {getExercise, getExercises, getExerByName, giveExeOrder} from '../../dtb_requests/db';
 import * as Babel from '@babel/standalone'
+import Chip from '@material-ui/core/Chip';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import TextField from '@material-ui/core/TextField';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -263,6 +266,28 @@ const handleCloseAlert = (event, reason) => {
               <label htmlFor="description">popis cviceni</label>
               <FormTextarea value={description} ></FormTextarea>
               </FormGroup>
+              
+
+              {/* <Autocomplete
+        multiple
+        id="tags-filled"
+        tags
+        renderTags={(value, getTagProps) =>
+          value.map((option, index) => (
+            <Chip variant="outlined" label={option} {...getTagProps({ index })} />
+          ))
+        }
+        renderInput={(params) => (
+          <TextField {...params} variant="filled" label="tags" placeholder="Favorites" />
+        )}
+      /> */}
+
+
+
+
+
+
+
               <FormGroup>
               <label></label>
               <FormCheckbox checked={checkbox} onChange={(e)=> handleCheckBox(e, "function")}>vysledek cviceni je funkce</FormCheckbox>
