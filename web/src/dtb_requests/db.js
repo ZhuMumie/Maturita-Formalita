@@ -11,31 +11,53 @@ export const getExercises = async () => {
     return(data.docs.map(doc=>doc.data()))
     
 }
-
-
-export const getCurrentExercise = async () => {
-    var user = null;
-    await fire.auth().onAuthStateChanged(user =>{
-        if(user) user = user.uid;
-        else return null
-      })
-
-    const data = await db.collection("users").doc(user).get();
-    
-    return(data.docs.map(doc=>doc.data()))
-    
-}
-
-
-export const getExercise = async () => {
-    const data = await db.collection("exercises");
-    data.get().then((querySnapshot)=>{
-        const tempDoc = querySnapshot.docs.map((doc) => {
-            return { id: doc.id, ...doc.data() }
-          })    
-      
+export const getCurrentExercise = async (userID) => {
+    const data = db.collection("users").doc(userID);
+    var id;
+    data.get().then((doc)=>{
+       
+        return doc.data().current_exercise_id;
     })
+    
+ 
+    
 }
+
+export const getExercise = async (exeID) => {
+    const data = db.collection("exercises").doc(exeID);
+    data.get().then((doc)=>{
+        return doc.data()
+    })
+    
+ 
+    
+}
+
+
+
+// export const getCurrentExercise = async () => {
+//     var user = null;
+//     await fire.auth().onAuthStateChanged(user =>{
+//         if(user) user = user.uid;
+//         else return null
+//       })
+
+//     const data = await db.collection("users").doc(user).get();
+    
+//     return(data.docs.map(doc=>doc.data()))
+    
+// }
+
+
+// export const getExercise = async () => {
+//     const data = await db.collection("exercises");
+//     data.get().then((querySnapshot)=>{
+//         const tempDoc = querySnapshot.docs.map((doc) => {
+//             return { id: doc.id, ...doc.data() }
+//           })    
+      
+//     })
+// }
 
 export const getExistUser = async (id) =>{
     const data = await db.collection("users").where(firebase.firestore.FieldPath.documentId(), '==', id.toString()).get();

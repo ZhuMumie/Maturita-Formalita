@@ -46,17 +46,12 @@ export default function AddExercise() {
 
   var getOrder = firebase.functions().httpsCallable('getOrder');
 
-  getOrder().then(result =>{
-    console.log(result.data);
-  }).catch((error)=>{
-    console.log(error)
-  })
   const [exercises, setExercise] = useState()
   
   const [isLoading, setIsLoading] = useState(false);
 
   const [exerciseOrder, setExerciseOrder] = useState()
-
+  const [tags, setTags] = useState([])
   useLayoutEffect(()=>{
    const getData = async () =>{
       setExercise(await getExercises());
@@ -65,6 +60,13 @@ export default function AddExercise() {
    
    }
     getData();
+
+    const tags = firebase.firestore().collection("tags").doc("tags");
+
+    tags.get().then((doc)=>{
+     
+      setTags(doc.data().tags)
+    })
   }, [])
 
  
@@ -167,13 +169,14 @@ function renderSolution(e){
     try{
     
       var output = Babel.transform(funResult, { plugins: ['transform-classes', 'transform-block-scoping'] }).code;
+
     var myInter = new Interpreter(output.trim(), initFunc);
       
     if(myInter.run())
     {
       
     }
-     setTestResult(myInter.value);
+     setTestResult(String(myInter.value));
 
   }
   catch(error){
@@ -185,6 +188,9 @@ function renderSolution(e){
 
 
 async function createRecord(){
+  let newTags = addedTags.filter(x => !tags.includes(x))
+  let dbTags = tags.concat(newTags)
+  
   if(await getExerByName(name))
   {
     setMessage("jmeno funkce musi byt unikatni")
@@ -192,6 +198,12 @@ async function createRecord(){
   }
   else{
     const db = firebase.firestore()
+
+    const tagCol = db.collection("tags").doc("tags");
+    tagCol.update({
+      tags: dbTags
+    })
+    
     db.collection("exercises").add({
       name:name,
       code: js,   
@@ -199,7 +211,8 @@ async function createRecord(){
       isFuncTest:checkbox,
       isRequired:required,
       exeOrder:exerciseOrder,
-      userView:userView
+      userView:userView,
+      tags:addedTags
     }).then(function(docRef){
   
     var subColName = "";
@@ -239,6 +252,10 @@ const handleCloseAlert = (event, reason) => {
   setOpen(false);
 };
 
+const [addedTags, setAddedTags] = useState([])
+const handleTagChange = (event, values) =>{
+  setAddedTags(values)
+}
 
   return (
     <div className={classes.root}>
@@ -266,21 +283,24 @@ const handleCloseAlert = (event, reason) => {
               <label htmlFor="description">popis cviceni</label>
               <FormTextarea value={description} ></FormTextarea>
               </FormGroup>
-              
-
-              {/* <Autocomplete
+            
+              <Autocomplete
         multiple
         id="tags-filled"
-        tags
+        options={tags}
+        freeSolo
+        value={addedTags}
+        onChange={handleTagChange}
         renderTags={(value, getTagProps) =>
           value.map((option, index) => (
             <Chip variant="outlined" label={option} {...getTagProps({ index })} />
           ))
         }
         renderInput={(params) => (
-          <TextField {...params} variant="filled" label="tags" placeholder="Favorites" />
+          <TextField {...params} variant="filled" label="tags" placeholder="filter" />
         )}
-      /> */}
+      />
+  
 
 
 

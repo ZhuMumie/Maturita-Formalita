@@ -60,9 +60,20 @@ const [id, setId] = useState()
   const db = firebase.firestore()
 
   const {currentUser} = React.useContext(AuthLocalContext)
+  
+  var getExercise = firebase.functions().httpsCallable("getExercise");
 
   useLayoutEffect(()=>{
     var isFunc;
+
+    const aaa = async (exe) =>{
+   
+    getExercise({exeName: exe}).then((result)=>{
+      console.log(result.data)
+    })
+  
+    }
+  
 
     const fetchData = async () => {
       
@@ -76,6 +87,7 @@ const [id, setId] = useState()
           isFunc = doc.data().isFuncTest
           setId(doc.id)
           setJs(doc.data().userView)
+          aaa(doc.data().name)
           
           
         const subCol = db.collection("exercises").doc(doc.id).collection(isFunc ? ("test_func"):("test_log"));
@@ -154,9 +166,13 @@ function render(e){
 }
 
 
-    var getOrder = firebase.functions().httpsCallable('getOrder');
+   
     var updateProgression = firebase.functions().httpsCallable('updateProgression')
-    var getExe = firebase.functions().httpsCallable('getExercises');
+    
+ 
+
+
+ 
 
 
   const checkCode = () =>{

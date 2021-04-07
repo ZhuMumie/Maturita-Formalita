@@ -1,5 +1,5 @@
 import { Container, Grid, Paper} from '@material-ui/core';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {Link} from "react-router-dom";
 import clsx from 'clsx';
@@ -26,7 +26,7 @@ import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-
+import useUnload from '../onbeforeunload';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -171,19 +171,48 @@ function Exercises(){
      
 
     }
+
+    const bolest = (event) =>{
+      event.returnValue = 'Opravdu chcete opustit  stránku bez uložení dat?'
+    }
+    
+    useUnload(e => {
+      e.preventDefault();
+      if(showSave){
+      e.returnValue = '';
+    }
+    });
+
+  
     useEffect(()=>{
         fetchData()
+
+      //   window.addEventListener('beforeunload', bolest)
         
+      //  return () =>{ window.removeEventListener('beforeunload', bolest);}
     }, [])
 
     const [loading, setLoading] = React.useState(false);
     const [success, setSuccess] = React.useState(false);
     const timer = React.useRef();
 
+    
+    
+    const eventListener = (show) =>{
+      // if(show)
+      // { console.log("fired")
+      //   window.addEventListener('beforeunload', bolest) 
+      // }
+      // else{
+      //   console.log("removed")
+      //   window.removeEventListener('beforeunload', bolest)
+      // }
+    }
     const handleButtonClick = () => {
       if (!loading) {
         setSuccess(false);
         setLoading(true);
+        
         timer.current = window.setTimeout(() => {
           setSuccess(true);
           changeOrder();
@@ -191,8 +220,9 @@ function Exercises(){
           
         }, 2000);
         timer.current = window.setTimeout(() => { 
-         
+          setSuccess(false);
           setShowSave(false)
+          eventListener(false)
         }, 3000);
       }
       
@@ -202,14 +232,27 @@ function Exercises(){
       await firebase.firestore().collection("exercises").doc(id).delete();
       fetchData() 
     }
+   
+   
+  //  window.addEventListener('beforeunload', e=>{
+  //    console.log(showSave)
+  //    setTimeout(() => {
+       
+  //    }, (0));
+  //    if(showSave)
+  //    {
+  //      console.log("fired")
+  //     return e.returnValue ='Opravdu chcete opustit  stránku bez uložení dat?'
+       
+  //    }
+  //    else{
+  //     window.onbeforeunload = null
+  //     console.log("nope")
+  //    }
+  //  })
+  //  window.addEventListener('onunload', e=>{
 
-   window.addEventListener('beforeunload', ev=>{
-     if(showSave==true)
-     {
-       ev.returnValue ='Opravdu chcete opustit  stránku bez uložení dat?'
-     }
-   })
-    
+  //  })
     
 const changeOrder = ()=>{
   var i = -1;
@@ -236,8 +279,9 @@ const changeOrder = ()=>{
 }
 const [showSave, setShowSave] = useState(false);
 const handleOnDragEnd = (result)=>{
+  eventListener(true);
   if(!result.destination) return;
-  setShowSave(true)
+  setShowSave(true) 
   const items = Array.from(exercises)
   const [reorderItem] =items.splice(result.source.index, 1)
   items.splice(result.destination.index, 0, reorderItem)

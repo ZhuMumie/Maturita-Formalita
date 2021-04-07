@@ -12,6 +12,9 @@ import  Reader from '../reader';
 import firebase from "firebase"
 import CloseIcon from '@material-ui/icons/Close';
 import {useHistory, useParams } from "react-router-dom";
+import Chip from '@material-ui/core/Chip';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import TextField from '@material-ui/core/TextField';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -69,17 +72,28 @@ export default function EditExercise() {
     setActiveStep(0);
   };
 
+  const handleTagChange = (event, values) =>{
+    setExeTags(values)
+  }
+  
   
   
   const [subId, setSubId] = useState("")
   const [docId, setDocId] = useState("")
-
+  const [exeTags, setExeTags] = useState([])
+  const [tags, setTags] = useState([])
   useLayoutEffect(()=>{
     const fetchData = async () => {
       const db = firebase.firestore()
       var subCol = "";
       var id = "";
       var isFunc = true;
+      const tags = firebase.firestore().collection("tags").doc("tags");
+
+      tags.get().then((doc)=>{
+       
+        setTags(doc.data().tags)
+      })
      await db.collection("exercises").where("name", "==", name).get().then(function(querySnapshot){
         querySnapshot.forEach(function(doc){
           id= doc.id
@@ -89,6 +103,7 @@ export default function EditExercise() {
           setExeName(doc.data().name)
           setUserView(doc.data().userView)
           setcheckbox(doc.data().isFuncTest) 
+          setExeTags(doc.data().tags)
           isFunc = doc.data().isFuncTest;
           
          
@@ -179,8 +194,16 @@ function renderSolution(e){
 let history = useHistory()
 
 function editRecord(){
-  
+  let newTags = exeTags.filter(x => !tags.includes(x))
+  let dbTags = tags.concat(newTags)
+
   const db = firebase.firestore()
+  
+  const tagCol = db.collection("tags").doc("tags");
+  tagCol.update({
+    tags: dbTags
+  })
+  
   db.collection("exercises").doc(docId).update({
     name:exeName,
     code: js,
@@ -247,10 +270,23 @@ const handleCloseAlert = (event, reason) => {
               <label htmlFor="description">popis cviceni</label>
               <FormTextarea value={description} ></FormTextarea>
               </FormGroup>
-              <FormGroup>
-              <label></label>
               
-              </FormGroup>
+              <Autocomplete
+        multiple
+        id="tags-filled"
+        options={tags}
+        freeSolo
+        value={exeTags}
+        onChange={handleTagChange}
+        renderTags={(value, getTagProps) =>
+          value.map((option, index) => (
+            <Chip variant="outlined" label={option} {...getTagProps({ index })} />
+          ))
+        }
+        renderInput={(params) => (
+          <TextField {...params} variant="filled" label="tags" placeholder="filter" />
+        )}
+      />
             </Form>
             <Button
               variant="contained"

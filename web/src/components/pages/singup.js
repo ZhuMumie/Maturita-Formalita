@@ -1,4 +1,4 @@
-import React, {useState, useContext} from "react";
+import React, {useState, useContext, useEffect} from "react";
 import { Form, FormInput, FormGroup, Container, Button, Alert, Navbar } from "shards-react";
 import firebase from 'firebase';
 import {Redirect, Route} from 'react-router-dom';
@@ -6,8 +6,11 @@ import Navibar from '../navbar';
 import {AuthLocalContext} from '../../moduly/authContext';
 import {useHistory } from "react-router-dom";
 import {getExistUser} from '../../dtb_requests/db'
+import {getExercises} from '../../dtb_requests/db'
 
 function Singup(props) {
+
+
 
   const [hasAccount, setHasAccount]= useState(false);
 
