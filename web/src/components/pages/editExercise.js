@@ -97,6 +97,7 @@ export default function EditExercise() {
      await db.collection("exercises").where("name", "==", name).get().then(function(querySnapshot){
         querySnapshot.forEach(function(doc){
           id= doc.id
+            
           setDocId(doc.id)
           setJs(doc.data().code)
           setDescription(doc.data().description)

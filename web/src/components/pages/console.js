@@ -69,7 +69,7 @@ const [id, setId] = useState()
     const aaa = async (exe) =>{
    
     getExercise({exeName: exe}).then((result)=>{
-      console.log(result.data)
+     
     })
   
     }
